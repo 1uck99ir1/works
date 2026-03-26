@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>楊奕文 Yiwen Yang | 視覺敘事與內容實踐</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Noto+Serif+SC:wght@300;400;500&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-warm: #fcfaf8; 
+            --text-main: #1a1a1a;
+            --text-muted: #707070;
+            --placeholder-bg: #f0eeec;
+        }
+        body {
+            font-family: 'Inter', 'Noto Sans SC', sans-serif;
+            background-color: var(--bg-warm);
+            color: var(--text-main);
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+        .serif {
+            font-family: 'Noto Serif SC', serif;
+        }
+        
+        /* --- 核心修復：圖片交互與顯示 --- */
+        .image-container {
+            background-color: var(--placeholder-bg);
+            position: relative;
+            overflow: hidden;
+            display: block;
+            cursor: zoom-in;
+        }
+        .image-container img {
+            position: relative;
+            z-index: 1; /* 確保圖片在噪點層之下但可點擊 */
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+        /* 瀑布流圖片樣式：取消強制填充，保持比例 */
+        .masonry-item .image-container {
+            height: auto !important; /* 讓高度自適應 */
+            padding-bottom: 0 !important;
+        }
+        .masonry-item img {
+            position: relative !important;
+            height: auto !important;
+            object-fit: contain !important;
+        }
+        
+        /* 噪點紋理：強制不阻擋鼠標事件 */
+        .image-container::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0.03; 
+            pointer-events: none !important; /* 關鍵修復：允許點擊穿透 */
+            z-index: 2;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+        
+        /* 過濾器按鈕 */
+        .filter-btn {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        .filter-btn::after {
+            content: '';
+            position: absolute;
+            bottom: -2px; left: 0; width: 0; height: 1px;
+            background: var(--text-main);
+            transition: width 0.3s ease;
+        }
+        .filter-btn.active::after {
+            width: 100%;
+        }
+        
+        .project-card {
+            cursor: pointer;
+        }
+        .fade-in {
+            animation: fadeIn 0.8s ease forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .hidden-page {
+            display: none;
+        }
+        
+        /* 視頻播放器樣式 */
+        .video-container {
+            width: 100%;
+            max-width: 900px; 
+            margin: 0 auto;
+            background: #000;
+            box-shadow: 0 30px 60px -12px rgba(0,0,0,0.15);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+        }
+        video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        /* --- 燈箱修復 --- */
+        #lightbox {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.98);
+            z-index: 9999; /* 極高層級 */
+            display: none;
+            justify-content: center;
+            align-items: center; 
+            padding: 40px;
+            cursor: zoom-out;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        #lightbox.active {
+            display: flex;
+            opacity: 1;
+        }
+        #lightbox-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        /* 長圖模式 */
+        #lightbox.scroll-mode {
+            align-items: flex-start;
+            overflow-y: auto;
+        }
+        #lightbox.scroll-mode #lightbox-content {
+            height: auto;
+            align-items: flex-start;
+            padding-top: 40px;
+            padding-bottom: 40px;
+        }
+        #lightbox img, #lightbox video {
+            max-width: 95%;
+            max-height: 95vh;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            box-shadow: 0 0 80px rgba(0,0,0,0.8);
+            transform: scale(0.95);
+            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        #lightbox.scroll-mode img {
+            max-height: none;
+            width: 800px;
+            max-width: 100%;
+        }
+        #lightbox.active img, #lightbox.active video {
+            transform: scale(1);
+        }
+        
+        /* H5 Mockup */
+        .h5-mockup {
+            width: 280px;
+            height: 520px;
+            background: #000;
+            border-radius: 40px;
+            border: 12px solid #1a1a1a;
+            overflow: hidden;
+            box-shadow: 0 40px 80px -20px rgba(0,0,0,0.2);
+            margin: 0 auto;
+            position: relative;
+            cursor: zoom-in;
+            z-index: 10;
+        }
+        .h5-mockup img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 8s ease-in-out; 
+        }
+        .h5-mockup:hover img {
+            transform: translateY(calc(-100% + 500px));
+        }
+        
+        .fallback-link {
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: #9ca3af;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 4px;
+            transition: all 0.3s ease;
+        }
+        .fallback-link:hover {
+            color: #1a1a1a;
+            border-color: #1a1a1a;
+        }
+    </style>
+</head>
+<body class="antialiased text-left">
+
+    <!-- 燈箱 -->
+    <div id="lightbox" onclick="closeLightbox()">
+        <div id="lightbox-content">
+            <!-- 修復：默認移除 hidden 類，通過父容器控制顯隱，防止衝突 -->
+            <img id="lightbox-img" src="" alt="Full Scale" style="display: none;">
+            <div id="video-wrapper" style="display: none;" class="w-full h-full flex items-center justify-center">
+                <video id="lightbox-video" controls playsinline></video>
+            </div>
+        </div>
+        <div class="fixed top-8 right-8 text-white/30 text-[10px] tracking-[0.4em] uppercase pointer-events-none font-medium z-50">點擊關閉 Close</div>
+    </div>
+
+    <!-- 導航 -->
+    <nav class="fixed top-0 w-full z-50 bg-[#fcfaf8]/80 backdrop-blur-sm border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-6 md:px-8 h-20 md:h-24 flex justify-between items-center text-left">
+            <div class="flex items-center space-x-3 md:space-x-4 cursor-pointer shrink-0" onclick="showPage('home')">
+                <div class="w-7 h-7 md:w-8 md:h-8 rounded-full overflow-hidden bg-gray-200 shrink-0">
+                    <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E5%A4%B4%E5%83%8F/%E8%B5%84%E6%BA%90%201.png" alt="Avatar" class="w-full h-full object-cover">
+                </div>
+                <div class="text-sm md:text-lg tracking-[0.1em] md:tracking-[0.2em] font-light whitespace-nowrap">
+                    YIWEN YANG <span class="hidden md:inline-block text-gray-300 ml-2">/</span> <span class="hidden md:inline-block text-sm ml-2 font-normal text-gray-500">楊奕文</span>
+                </div>
+            </div>
+            <div class="flex space-x-6 md:space-x-12 text-[10px] tracking-[0.1em] md:tracking-[0.2em] uppercase font-medium shrink-0">
+                <a href="javascript:void(0)" onclick="showPage('home')" class="hover:text-gray-400 transition"><span class="hidden md:inline">作品 </span>Works</a>
+                <a href="javascript:void(0)" onclick="showPage('about')" class="hover:text-gray-400 transition"><span class="hidden md:inline">關於 </span>About</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 1. 首頁 -->
+    <div id="home-page" class="fade-in">
+        <section class="pt-48 pb-32 px-8 max-w-7xl mx-auto text-left">
+            <div class="max-w-4xl">
+                <h2 class="text-xs uppercase tracking-[0.4em] text-gray-400 mb-12 font-medium">Visual Storytelling & Content Practice</h2>
+                <h1 class="text-4xl md:text-6xl font-light serif leading-[1.3] mb-12 text-gray-900">
+                    內容驅動型視覺設計，<br/>
+                    探尋品牌在數字媒介中的<span class="italic text-gray-400 text-6xl text-opacity-80">敘事表達</span>。
+                </h1>
+                <p class="text-lg text-gray-500 leading-relaxed font-light max-w-2xl text-justify">
+                    我是楊奕文。專注於視覺表達在內容傳播中的轉化，通過 AIGC 影像、空間體驗與平面邏輯的整合，為品牌構建具有質感的傳播方案。
+                </p>
+            </div>
+        </section>
+
+        <!-- 商業作品 -->
+        <section id="commercial" class="py-24 px-8 max-w-7xl mx-auto border-t border-gray-100">
+            <div class="flex flex-col md:flex-row md:items-baseline justify-between mb-20 text-left">
+                <div class="flex items-baseline space-x-4">
+                    <h3 class="text-2xl font-light serif text-black">商業作品</h3>
+                    <span class="text-[10px] tracking-[0.2em] text-gray-300 uppercase font-medium">Commercial Content</span>
+                </div>
+                <div class="flex space-x-8 mt-8 md:mt-0 text-[10px] tracking-[0.2em] text-gray-400 uppercase font-medium">
+                    <span class="text-gray-300">Live Projects</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-24" id="grid">
+                <!-- 1. 騰勢 N8L -->
+                <div class="project-card group cursor-pointer text-left" data-cat="live" onclick="showPage('denza')">
+                    <div class="aspect-[16/10] image-container mb-8">
+                        <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/The_evening_sunlight_2k_202602131608.jpeg?raw=true" alt="騰勢 N8L">
+                    </div>
+                    <div class="flex justify-between items-end">
+                        <div class="space-y-2 text-left">
+                            <span class="text-[10px] tracking-widest text-gray-400 uppercase font-medium">Live / 汽車品牌影像傳播</span>
+                            <h4 class="text-xl font-light serif text-black">騰勢N8L《解鎖任意門》春節品牌影像</h4>
+                        </div>
+                        <div class="text-[10px] text-gray-400 tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity font-medium">探索案例 →</div>
+                    </div>
+                </div>
+
+                <!-- 2. 林肯紋樣設計 -->
+                <div class="project-card group cursor-pointer text-left" data-cat="live" onclick="showPage('lincoln')">
+                    <div class="aspect-[16/10] image-container mb-8">
+                        <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/%E5%9B%BE%E7%89%874.jpg" alt="林肯紋樣">
+                    </div>
+                    <div class="flex justify-between items-end">
+                        <div class="space-y-2 text-left">
+                            <span class="text-[10px] tracking-widest text-gray-400 uppercase font-medium">Live / 品牌紋樣設計</span>
+                            <h4 class="text-xl font-light serif text-gray-900">林肯汽車 × 非遺宋錦：品牌視覺紋樣設計</h4>
+                        </div>
+                        <div class="text-[10px] text-gray-400 tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity font-medium">查看詳情 →</div>
+                    </div>
+                </div>
+
+                <!-- 3. 林肯 AIGC 影片 -->
+                <div class="project-card group cursor-pointer text-left" data-cat="live" onclick="showPage('lincoln-aigc')">
+                    <div class="aspect-[16/10] image-container mb-8">
+                        <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/d8b3840e0b5e1a4ff2eaeeceda5d935a.JPG" alt="林肯 AIGC">
+                    </div>
+                    <div class="flex justify-between items-end text-left">
+                        <div class="space-y-2 text-left">
+                            <span class="text-[10px] tracking-widest text-gray-400 uppercase font-medium">Live / AIGC 影片製作</span>
+                            <h4 class="text-xl font-light serif text-gray-900">林肯汽車：全流程 AI 品牌創意影像</h4>
+                        </div>
+                        <div class="text-[10px] text-gray-400 tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity font-medium">查看影片 →</div>
+                    </div>
+                </div>
+
+                <!-- 4. 網易雲音樂 -->
+                <div class="project-card group cursor-pointer text-left" data-cat="live" onclick="showPage('netease')">
+                    <div class="aspect-[16/10] image-container mb-8">
+                        <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E9%83%BD%E5%B8%82%E5%BE%8B%E5%8A%A8.jpg" alt="網易雲音樂">
+                    </div>
+                    <div class="flex justify-between items-end text-left">
+                        <div class="space-y-2 text-left">
+                            <span class="text-[10px] tracking-widest text-gray-400 uppercase font-medium">Live / 品牌整合視覺</span>
+                            <h4 class="text-xl font-light serif text-gray-900">網易雲音樂 × 長安馬自達：整合互動 Campaign</h4>
+                        </div>
+                        <div class="text-[10px] text-gray-400 tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity font-medium">查看詳情 →</div>
+                    </div>
+                </div>
+
+                <!-- 5. 想下班的驢 -->
+                <div class="project-card group cursor-pointer text-left" data-cat="live" onclick="showPage('donkey')">
+                    <div class="aspect-[16/10] image-container mb-8">
+                        <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/Replace_the_background_4k_202601271538.jpeg?raw=true" alt="IP Project">
+                    </div>
+                    <div class="flex justify-between items-end">
+                        <div class="space-y-2 text-left">
+                            <span class="text-[10px] tracking-widest text-gray-400 uppercase font-medium">Live / IP Incubation & Growth</span>
+                            <h4 class="text-xl font-light serif text-gray-900">職場 IP《想下班的驢》品牌孵化與增長</h4>
+                        </div>
+                        <div class="text-[10px] text-gray-400 tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity font-medium">查看案例 →</div>
+                    </div>
+                </div>
+
+                <!-- 6. 網易汽車 AI 主播 -->
+                <div class="project-card group cursor-pointer text-left" data-cat="live" onclick="showPage('netease-auto')">
+                    <div class="aspect-[16/10] image-container mb-8">
+                        <img src="https://github.com/1uck99ir1/works/blob/main/%E5%BC%A0%E9%BD%90%E5%B0%86%E5%86%9B/%E6%88%AA%E5%B1%8F2025-11-03%2016.13.53.png?raw=true" alt="NetEase Auto AI Anchor">
+                    </div>
+                    <div class="flex justify-between items-end">
+                        <div class="space-y-2 text-left">
+                            <span class="text-[10px] tracking-widest text-gray-400 uppercase font-medium">Live / 數字人解決方案</span>
+                            <h4 class="text-xl font-light serif text-gray-900">網易汽車 AI 主播：零實拍全片生成</h4>
+                        </div>
+                        <div class="text-[10px] text-gray-400 tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity font-medium">查看詳情 →</div>
+                    </div>
+                </div>
+
+                <!-- 7. 寧波城市形象海報 (新增項目) -->
+                <div class="project-card group cursor-pointer text-left" data-cat="live" onclick="showPage('ningbo')">
+                    <div class="aspect-[16/10] image-container mb-8">
+                        <img src="https://github.com/1uck99ir1/works/raw/main/%E5%AE%81%E6%B3%A2%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F/%E5%AE%81%E6%B3%A2%E6%96%87%E5%8C%96%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F2.png" alt="寧波與世界海報">
+                    </div>
+                    <div class="flex justify-between items-end">
+                        <div class="space-y-2 text-left">
+                            <span class="text-[10px] tracking-widest text-gray-400 uppercase font-medium">Live / 城市形象與視覺傳播</span>
+                            <h4 class="text-xl font-light serif text-gray-900">“寧波與世界” 城市形象美學海報</h4>
+                        </div>
+                        <div class="text-[10px] text-gray-400 tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity font-medium">查看詳情 →</div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 個人創作 -->
+        <section id="personal" class="py-24 px-8 max-w-7xl mx-auto border-t border-gray-100 text-left">
+            <h3 class="text-2xl font-light serif mb-12 text-black">個人創作 Personal Practice</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <!-- 人是機器人的神 -->
+                <div class="space-y-4 cursor-pointer text-left" onclick="showPage('robot-god')">
+                    <div class="aspect-square image-container"><img src="https://github.com/1uck99ir1/works/blob/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/creator.jpg?raw=true" alt="人是機器人的神"></div>
+                    <h5 class="serif text-lg font-light text-black">《人是機器人的神》系列科幻插畫</h5>
+                </div>
+                <!-- 矛盾的海洋 -->
+                <div class="space-y-4 cursor-pointer text-left" onclick="showPage('ocean')">
+                    <div class="aspect-square image-container"><img src="https://github.com/1uck99ir1/works/blob/main/ocean/%E6%88%AA%E5%B1%8F2026-02-19%2013.15.06.png?raw=true" alt="矛盾的海洋"></div>
+                    <h5 class="serif text-lg font-light text-black">《矛盾的海洋》虛擬展覽與社會觀察</h5>
+                </div>
+            </div>
+        </section>
+
+        <footer class="py-20 px-8 text-center border-t border-gray-100 text-[9px] tracking-[0.6em] text-gray-300 uppercase font-medium">© 2025 Yiwen Yang. All Rights Reserved.</footer>
+    </div>
+
+    <!-- 2. 騰勢 N8L 詳情頁 -->
+    <div id="denza-page" class="hidden-page fade-in pt-40 pb-24 text-left">
+        <article class="max-w-7xl mx-auto px-8">
+            <header class="max-w-4xl mb-24 text-left">
+                <button onclick="showPage('home')" class="text-[10px] tracking-[0.3em] text-gray-300 uppercase mb-8 hover:text-black transition">← 返回首頁 Back to Index</button>
+                <div class="flex items-center space-x-4 mb-8">
+                    <span class="text-[10px] tracking-[0.3em] text-gray-400 uppercase font-medium">Integrated Campaign</span>
+                    <div class="h-px w-12 bg-gray-200"></div>
+                    <span class="text-[10px] tracking-[0.3em] text-gray-400 uppercase font-medium">AIGC Visual Practice</span>
+                </div>
+                <h1 class="text-5xl md:text-7xl font-light serif mb-12 leading-tight text-black">騰勢N8L《解鎖任意門》春節品牌影像</h1>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-12 py-10 border-t border-gray-100 font-light text-sm text-black">
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">品牌方 Client</h5><p>騰勢汽車 / Denza</p></div>
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">角色 Role</h5><p>創意設計師 / 影像執行</p></div>
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">技術 Tech</h5><p>AIGC Workflow</p></div>
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">發布 Release</h5><p>2025 春節檔</p></div>
+                </div>
+            </header>
+
+            <section class="mb-32">
+                <div class="video-container shadow-xl">
+                    <video controls preload="auto" playsinline poster="https://raw.githubusercontent.com/1uck99ir1/works/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/%E5%9B%BE%E7%89%871.jpg">
+                        <source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/67873348186d6d03749a23b15934a6c0.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="mt-4 text-center">
+                    <a href="https://raw.githubusercontent.com/1uck99ir1/works/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/67873348186d6d03749a23b15934a6c0.mp4" target="_blank" class="fallback-link font-medium text-[10px]">影片無法載入？點此直接播放 / Watch via Direct Link</a>
+                </div>
+            </section>
+
+            <section class="grid grid-cols-1 md:grid-cols-12 gap-16 mb-40 text-justify font-light text-gray-500 leading-relaxed text-left">
+                <div class="md:col-span-5 text-left">
+                    <h3 class="text-2xl font-light serif mb-8 text-black text-left">內容策動：解鎖任意地点的「旅程」</h3>
+                    <p class="text-gray-400 text-sm text-left">春節滿分出行，是守著一份安心，滿載歡聲笑語，與親朋好友一同出發。</p>
+                </div>
+                <div class="md:col-span-7">
+                    <p class="text-xl md:text-2xl font-light serif leading-relaxed text-gray-600 mb-8">跟隨騰勢N8L解鎖任意門，邂逅奇妙新旅程。我們通過視覺敘事將安全與操控的核心賣點，轉化為充滿質感的影像內容。</p>
+                    <p class="text-left">在這個項目中，AIGC 被作為突破物理限制的創意引擎。我們構建了一系列跨越現實邊界的視覺轉場，將騰勢N8L置於草原、雪地、城市、海邊等多元場景之中，實現了在任意地點的視覺奇遇。</p>
+                </div>
+            </section>
+
+            <section class="space-y-16 mb-32 pt-16 border-t border-gray-100 text-center">
+                <div class="grid grid-cols-1 gap-12">
+                    <div class="image-container aspect-[3/2] md:aspect-[21/9]">
+                        <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/%E5%9B%BE%E7%89%871.jpg" class="zoom-clickable" onclick="openLightbox(this.src)">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div class="image-container aspect-[3/4]"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/%E5%9B%BE%E7%89%872.jpeg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-[3/4] md:mt-24"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/Spread_the_characters_4k_202601151621.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div class="image-container aspect-video"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/%E6%97%A0%E5%A4%AA%E9%98%B3%E5%8F%B3%E4%BE%A7-p%E8%BF%87.jpeg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-video"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/The_evening_sunlight_2k_202602131608.jpeg?raw=true" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                </div>
+            </section>
+
+            <section class="space-y-16 mb-40 pt-24 border-t border-gray-100 text-center">
+                <h4 class="text-[10px] tracking-[0.4em] text-gray-400 uppercase font-medium">Video Fragments - AIGC 影像片段</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12 text-center">
+                    <div class="relative bg-black rounded-sm overflow-hidden aspect-video cursor-zoom-in" onclick="openLightbox('https://github.com/1uck99ir1/works/raw/refs/heads/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/%E5%B0%8F%E7%86%8A%E7%9C%8B%E5%A4%95%E9%98%B3%E7%89%B9%E5%86%992.mp4', 'video')">
+                        <video autoplay muted loop playsinline class="w-full h-full object-cover opacity-80 hover:opacity-100 transition"><source src="https://github.com/1uck99ir1/works/raw/refs/heads/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/%E5%B0%8F%E7%86%8A%E7%9C%8B%E5%A4%95%E9%98%B3%E7%89%B9%E5%86%992.mp4" type="video/mp4"></video>
+                    </div>
+                    <div class="relative bg-black rounded-sm overflow-hidden aspect-video cursor-zoom-in" onclick="openLightbox('https://github.com/1uck99ir1/works/raw/refs/heads/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/2%E6%9C%8818%E6%97%A5.mp4', 'video')">
+                        <video autoplay muted loop playsinline class="w-full h-full object-cover opacity-80 hover:opacity-100 transition"><source src="https://github.com/1uck99ir1/works/raw/refs/heads/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/2%E6%9C%8818%E6%97%A5.mp4" type="video/mp4"></video>
+                    </div>
+                    <div class="relative bg-black rounded-sm overflow-hidden aspect-video cursor-zoom-in" onclick="openLightbox('https://github.com/1uck99ir1/works/raw/refs/heads/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/kling_20260124_%E4%BD%9C%E5%93%81_%E8%AF%B7%E4%BD%BF%E7%94%A8%E6%88%91%E6%8F%90%E4%BE%9B%E7%9A%84_%E5%9B%BE%E7%89%87_4556_0.mp4', 'video')">
+                        <video autoplay muted loop playsinline class="w-full h-full object-cover opacity-80 hover:opacity-100 transition"><source src="https://github.com/1uck99ir1/works/raw/refs/heads/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/kling_20260124_%E4%BD%9C%E5%93%81_%E8%AF%B7%E4%BD%BF%E7%94%A8%E6%88%91%E6%8F%90%E4%BE%9B%E7%9A%84_%E5%9B%BE%E7%89%87_4556_0.mp4" type="video/mp4"></video>
+                    </div>
+                    <div class="relative bg-black rounded-sm overflow-hidden aspect-video cursor-zoom-in" onclick="openLightbox('https://github.com/1uck99ir1/works/raw/refs/heads/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/kling_20260129_%E5%9B%BE%E7%94%9F%E8%A7%86%E9%A2%91_%E7%94%B5%E5%BD%B1%E7%BA%A7%E5%86%99%E5%AE%9E%E6%91%84%E5%BD%B1%E9%A3%8E%E6%A0%BC__2934_0.mp4', 'video')">
+                        <video autoplay muted loop playsinline class="w-full h-full object-cover opacity-80 hover:opacity-100 transition"><source src="https://github.com/1uck99ir1/works/raw/refs/heads/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/kling_20260129_%E5%9B%BE%E7%94%9F%E8%A7%86%E9%A2%91_%E7%94%B5%E5%BD%B1%E7%BA%A7%E5%86%99%E5%AE%9E%E6%91%84%E5%BD%B1%E9%A3%8E%E6%A0%BC__2934_0.mp4" type="video/mp4"></video>
+                    </div>
+                </div>
+            </section>
+            
+            <footer class="py-32 flex justify-center border-t border-gray-100"><button onclick="showPage('home')" class="text-xs tracking-widest text-gray-400 font-medium">BACK TO INDEX</button></footer>
+        </article>
+    </div>
+
+    <!-- 3. 林肯汽車紋樣詳情頁 -->
+    <div id="lincoln-page" class="hidden-page fade-in pt-40 pb-24 text-left">
+        <article class="max-w-7xl mx-auto px-8">
+            <header class="max-w-4xl mb-24 text-left">
+                <button onclick="showPage('home')" class="text-[10px] tracking-[0.3em] text-gray-300 uppercase mb-8 hover:text-black transition">← Back to Index</button>
+                <h1 class="text-5xl md:text-7xl font-light serif mb-12 leading-tight text-black">林肯汽車 × 非遺宋錦：品牌專屬紋樣與身份敘事</h1>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-12 py-10 border-t border-gray-100 font-light text-sm text-black">
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">Client</h5><p>Lincoln</p></div>
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">Role</h5><p>紋樣設計師</p></div>
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">Value</h5><p>視覺符號定義</p></div>
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">Collab</h5><p>上久楷 (非遺宋錦)</p></div>
+                </div>
+            </header>
+            <section class="mb-32">
+                <div class="video-container shadow-2xl">
+                    <video controls preload="auto" playsinline poster="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/%E5%9B%BE%E7%89%874.jpg">
+                        <source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/1772187807186.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="mt-4 text-center">
+                    <a href="https://www.bilibili.com/video/BV1oTAUzXEMf/?spm_id_from=333.1387.homepage.video_card.click&vd_source=095bacc9ad42f80702067d49cc0e624f" target="_blank" class="fallback-link font-medium text-[10px]">影片無法載入？點此直接播放 / Watch via Direct Link</a>
+                </div>
+            </section>
+            <section class="grid grid-cols-1 md:grid-cols-12 gap-16 mb-40 text-justify font-light text-gray-500 leading-relaxed text-left">
+                <div class="md:col-span-5"><h3 class="text-2xl font-light serif mb-8 text-black">融合共創 | 品牌專屬紋樣</h3><p>我們將林肯「十字星輝」百年底蘊與非遺「螭龍紋」圖騰進行深度重構。</p></div>
+                <div class="md:col-span-7"><p class="text-xl font-light serif text-gray-600">此次設計不僅是工藝的復刻，更是品牌視覺身份的升維。實現了非遺文化在現代工業設計中的深度轉化。</p></div>
+            </section>
+            <section class="mb-40 pt-24 border-t border-gray-100">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div class="image-container aspect-[3/2] shadow-sm"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/%E7%BA%B9%E6%A0%B7.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-[3/2] shadow-sm"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/%E7%BA%B9%E6%A0%B7%E6%8B%86%E5%88%862.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                </div>
+            </section>
+            <section class="mb-40 pt-24 border-t border-gray-100 text-center">
+                <h3 class="text-2xl font-light serif mb-12 text-black">匠心造物 | 宋錦限量禮盒實拍</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="image-container aspect-[4/5]"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/%E4%BE%A7%E9%9D%A2.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-[4/5]"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/%E7%A4%BC%E7%9B%92%E6%89%93%E5%BC%801.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-[4/5]"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/%E9%92%A5%E5%8C%99%E6%89%A3.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                </div>
+            </section>
+            <section class="mb-40 pt-24 border-t border-gray-100 text-center">
+                <h3 class="text-2xl font-light serif mb-12 text-black">展台應用 | 品牌空間延展</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="image-container aspect-video shadow-sm"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/%E4%B8%8A%E6%B5%B7%E8%BD%A6%E5%B1%95.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-video shadow-sm"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/%E5%B9%BF%E5%B7%9E%E8%BD%A6%E5%B1%95.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                </div>
+            </section>
+            <footer class="py-32 flex justify-center border-t border-gray-100"><button onclick="showPage('home')" class="text-xs tracking-widest text-gray-400 font-medium">BACK TO INDEX</button></footer>
+        </article>
+    </div>
+
+    <!-- 4. 林肯 AIGC 詳情頁 -->
+    <div id="lincoln-aigc-page" class="hidden-page fade-in pt-40 pb-24 text-left">
+        <article class="max-w-7xl mx-auto px-8">
+            <header class="max-w-4xl mb-24 text-left">
+                <button onclick="showPage('home')" class="text-[10px] tracking-[0.3em] text-gray-300 uppercase mb-8 hover:text-black transition">← Back to Index</button>
+                <div class="flex items-center space-x-4 mb-8">
+                    <span class="text-[10px] tracking-[0.3em] text-gray-400 uppercase font-medium">AI-Native Production</span>
+                    <div class="h-px w-12 bg-gray-200"></div>
+                    <span class="text-[10px] tracking-[0.3em] text-gray-400 uppercase font-medium">Generative Visual Storytelling</span>
+                </div>
+                <h1 class="text-5xl md:text-7xl font-light serif mb-12 leading-tight text-black text-left">林肯汽車：全流程 AI 品牌創意影像</h1>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-12 py-10 border-t border-gray-100 font-light text-sm text-black">
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">Client</h5><p>Lincoln</p></div>
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">Role</h5><p>AIGC Lead</p></div>
+                </div>
+            </header>
+            <section class="mb-32">
+                <div class="video-container shadow-2xl">
+                    <video controls preload="auto" playsinline poster="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/d8b3840e0b5e1a4ff2eaeeceda5d935a.JPG">
+                        <source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/1772187470587.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="mt-4 text-center"><a href="https://wxapp.tc.qq.com/251/20302/stodownload?encfilekey=Cvvj5Ix3eewK0tHtibORqcsqchXNh0Gf3sJcaYqC2rQB7a44da2fYZSvam4vzEcf0dsI6pLRD1u5RMibuErnKic9qzGXRE00QcJeuC7mm8Q3gwxGf9ngNQ1icbEiaor82VOJk&bizid=1023&dotrans=0&hy=SH&idx=1&m=&uzid=7a1b6&token=6xykWLEnztIwsypERw9eUE7tu2UCgr7HWCGhSlNIGsTYQ0OVicCyiaDkPULqZO9C9jrYj0ZvzxLZ4kVYtz5xdZtruFdIZbbrS4FUib9Xd8CcOclhxzfofuGjpNz8douIXnxFXMecNqaMZgYUBuAIpFQFJPDNfZcKrIWD48E5ZL51ho&basedata=CAESABoDeFYwIgAqBwizHRAAGAA&sign=me8GbmjiEraMrAMvWypGKbIDwZcZM7PI2z3oBDkusKEYKrUpkLRVSHOrZ6JzE6E_Ns0CRg08WTpkcDRaBpzFxA&ctsc=9488890" target="_blank" class="fallback-link font-medium">影片無法載入？點此直接播放 / Watch via Direct Link</a></div>
+            </section>
+            <section class="grid grid-cols-1 md:grid-cols-12 gap-16 mb-40 text-justify font-light text-gray-500 leading-relaxed text-left">
+                <div class="md:col-span-5"><h3 class="text-2xl font-light serif mb-8 text-black text-left">設計策動：從像素到意象的 AI 重構</h3><p class="text-left">本項目嘗試以純粹的 AI 工作流重新定義品牌影像。</p></div>
+                <div class="md:col-span-7"><p class="text-xl font-light serif text-gray-600 text-left">我們利用生成式 AI 技術，將林肯品牌的「靜謐」與「豪華」進行意象化處理，構建了一個超寫實且充滿詩意的數字視覺空間。</p></div>
+            </section>
+            <section class="space-y-16 mb-40 pt-24 border-t border-gray-100 text-center">
+                <h4 class="text-[10px] tracking-[0.4em] text-gray-400 uppercase font-medium">AI Fragments - 創意片段</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+                    <div class="relative aspect-video bg-black rounded-sm overflow-hidden cursor-zoom-in" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/9017.MP4', 'video')">
+                        <video autoplay muted loop playsinline class="w-full h-full object-cover opacity-80 hover:opacity-100 transition"><source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/9017.MP4" type="video/mp4"></video>
+                    </div>
+                    <div class="relative aspect-video bg-black rounded-sm overflow-hidden cursor-zoom-in" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/%E7%8B%AC%E5%BA%93%E5%85%AC%E8%B7%AF%E9%95%9C%E5%A4%B42-1.mp4', 'video')">
+                        <video autoplay muted loop playsinline class="w-full h-full object-cover opacity-80 hover:opacity-100 transition"><source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/%E7%8B%AC%E5%BA%93%E5%85%AC%E8%B7%AF%E9%95%9C%E5%A4%B42-1.mp4" type="video/mp4"></video>
+                    </div>
+                    <div class="relative aspect-video bg-black rounded-sm overflow-hidden cursor-zoom-in" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/%E8%8D%A7%E5%85%89%E6%B5%B7%E9%95%9C%E5%A4%B42-1.mp4', 'video')">
+                        <video autoplay muted loop playsinline class="w-full h-full object-cover opacity-80 hover:opacity-100 transition"><source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/%E8%8D%A7%E5%85%89%E6%B5%B7%E9%95%9C%E5%A4%B42-1.mp4" type="video/mp4"></video>
+                    </div>
+                    <div class="relative aspect-video bg-black rounded-sm overflow-hidden cursor-zoom-in" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/%E8%8D%A7%E5%85%89%E6%B5%B7%E9%95%9C%E5%A4%B43-2.mp4', 'video')">
+                        <video autoplay muted loop playsinline class="w-full h-full object-cover opacity-80 hover:opacity-100 transition"><source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/%E8%8D%A7%E5%85%89%E6%B5%B7%E9%95%9C%E5%A4%B43-2.mp4" type="video/mp4"></video>
+                    </div>
+                </div>
+            </section>
+            <footer class="py-32 flex justify-center border-t border-gray-100"><button onclick="showPage('home')" class="text-xs tracking-widest text-gray-400 font-medium">BACK TO INDEX</button></footer>
+        </article>
+    </div>
+
+    <!-- 5. 網易雲音樂詳情頁 -->
+    <div id="netease-page" class="hidden-page fade-in pt-40 pb-24 text-left">
+        <article class="max-w-7xl mx-auto px-8">
+            <header class="max-w-4xl mb-24 text-left">
+                <button onclick="showPage('home')" class="text-[10px] tracking-[0.3em] text-gray-300 uppercase mb-8 hover:text-black transition">← 返回首頁 Back to Index</button>
+                <div class="flex items-center space-x-4 mb-8">
+                    <span class="text-[10px] tracking-[0.3em] text-gray-400 uppercase font-medium">Interactive Visual Design</span>
+                    <div class="h-px w-12 bg-gray-200"></div>
+                    <span class="text-[10px] tracking-[0.3em] text-gray-400 uppercase font-medium">AI-Powered Interaction</span>
+                </div>
+                <h1 class="text-5xl md:text-7xl font-light serif mb-12 leading-tight text-black">網易雲音樂 × 長安馬自達：<br/>整合互動 Campaign 與 AIGC 視覺</h1>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-12 py-10 border-t border-gray-100 font-light text-sm text-black">
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">Client</h5><p>NetEase Music</p></div>
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">Role</h5><p>創意設計 / AI 視覺執行</p></div>
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">Release</h5><p>2025.10</p></div>
+                </div>
+            </header>
+
+            <section class="mb-40 pt-24 border-t border-gray-100 text-left">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-16 items-start">
+                    <div class="md:col-span-5 space-y-12">
+                        <div class="text-justify"><h3 class="text-2xl font-light serif mb-6 text-black">數據表現與影響力</h3><p class="text-gray-500 text-sm leading-relaxed font-light text-justify">本案以代言人王心凌 IP 為情感引擎，通過音樂現場沈浸式互動實現品牌心智的深度滲透。專案全網曝光突破 12 億次，內容閱覽量達 3844W+。其中，「EZ-60 快樂歌單」在雲音樂廣場推薦播放量超 53.7W 次，單日搜索指數暴增 7338.46%。</p></div>
+                    </div>
+                    <div class="md:col-span-7 grid grid-cols-2 gap-8">
+                        <div class="p-8 bg-white border border-gray-100"><h4 class="text-[10px] text-gray-400 uppercase tracking-widest mb-2">Content Views</h4><p class="text-3xl font-light serif text-black">3844W+</p></div>
+                        <div class="p-8 bg-white border border-gray-100"><h4 class="text-[10px] text-gray-400 uppercase tracking-widest mb-2">Interactions</h4><p class="text-3xl font-light serif text-black">96W+</p></div>
+                        <div class="p-8 bg-white border border-gray-100"><h4 class="text-[10px] text-gray-400 uppercase tracking-widest mb-2">Playlist Plays</h4><p class="text-3xl font-light serif text-black">53.7W+</p></div>
+                        <div class="p-8 bg-white border border-gray-100"><h4 class="text-[10px] text-gray-400 uppercase tracking-widest mb-2">Search Growth</h4><p class="text-3xl font-light serif text-black">7338%</p></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mb-40 pt-24 border-t border-gray-100 text-center font-light">
+                <h3 class="text-2xl font-light serif mb-12 text-black text-center">AIGC 創意互動片段</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="relative bg-black rounded-sm overflow-hidden aspect-[9/16] cursor-zoom-in" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/1.mp4', 'video')">
+                        <video autoplay muted loop playsinline class="w-full h-full object-cover"><source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/1.mp4" type="video/mp4"></video>
+                    </div>
+                    <div class="relative bg-black rounded-sm overflow-hidden aspect-[9/16] cursor-zoom-in" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/2.mp4', 'video')">
+                        <video autoplay muted loop playsinline class="w-full h-full object-cover"><source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/2.mp4" type="video/mp4"></video>
+                    </div>
+                    <div class="relative bg-black rounded-sm overflow-hidden aspect-[9/16] cursor-zoom-in" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/3.mp4', 'video')">
+                        <video autoplay muted loop playsinline class="w-full h-full object-cover"><source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/3.mp4" type="video/mp4"></video>
+                    </div>
+                </div>
+                <div class="mt-16 text-center">
+                    <a href="https://go.163.com/f2e/20250916_mazda_ai/index.html?userid=262371725&dlt=0846&app_version=9.4.65" target="_blank" 
+                       class="inline-block px-12 py-4 border border-black text-xs tracking-widest uppercase hover:bg-black hover:text-white transition-all duration-300">
+                        立即體驗 AIGC 創意互動 (限移動端) →
+                    </a>
+                </div>
+            </section>
+            
+            <section class="mb-40 pt-24 border-t border-gray-100">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-16 items-center">
+                    <div class="md:col-span-5 space-y-12">
+                        <div class="text-justify"><h3 class="text-2xl font-light serif mb-6 text-black">內容樞紐與轉化：視覺路徑</h3><p class="text-gray-500 text-sm leading-relaxed font-light text-justify">整合樞紐頁與留資頁視覺設計，通過 AIGC 技術賦能個性化生成環節，構建完整的品牌互動閉環，實現從流量進入到銷售轉化的無縫銜接。</p></div>
+                    </div>
+                    <div class="md:col-span-7 flex flex-col md:flex-row gap-8">
+                        <div class="h5-mockup" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E4%BA%91%E9%9F%B3%E4%B9%90h5%E9%95%BF%E5%9B%BE0926.jpg')">
+                            <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E4%BA%91%E9%9F%B3%E4%B9%90h5%E9%95%BF%E5%9B%BE0926.jpg" alt="專題頁">
+                        </div>
+                        <div class="h5-mockup md:mt-24" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E7%95%99%E5%92%A8.jpg')">
+                            <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E7%95%99%E5%92%A8.jpg" alt="留資頁">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mb-40 pt-24 border-t border-gray-100 text-center font-light">
+                <div class="max-w-2xl mx-auto mb-16">
+                    <h3 class="text-2xl font-light serif mb-6 text-black">AIGC 視覺概念探索</h3>
+                    <p class="text-gray-500 text-sm leading-relaxed text-center">為互動 H5 定製開發的多維度視覺場景，結合 AI 渲染技術構建沈浸式品牌情緒空間。</p>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div class="image-container aspect-[3/4]"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E5%B1%B1%E8%B0%B7%E6%98%9F%E7%A9%BA.png" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-[3/4]"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E6%B2%99%E6%BC%A0%E6%97%A5%E8%90%BD.png" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-[3/4]"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E6%B8%85%E6%99%A8%E5%AF%86%E6%9E%97.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-[3/4]"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E7%94%B5%E5%AD%90%E8%BF%B7%E5%B9%BB.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-[3/4]"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E7%94%B5%E5%AD%90%E8%BF%B7%E5%B9%BB2.png" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-[3/4]"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E8%87%AA%E7%94%B1%E5%BC%AF%E9%81%932.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-[3/4]"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E9%83%BD%E5%B8%82%E5%BE%8B%E5%8A%A8.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-[3/4]"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E9%83%BD%E5%B8%82%E5%BE%8B%E5%8A%A82.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                </div>
+            </section>
+            
+            <footer class="py-20 flex justify-center border-t border-gray-100"><button onclick="showPage('home')" class="text-xs tracking-widest text-gray-400 font-medium">BACK TO INDEX</button></footer>
+        </article>
+    </div>
+
+    <!-- 6. 網易汽車 AI 主播詳情頁 (恢復標準播放器) -->
+    <div id="netease-auto-page" class="hidden-page fade-in pt-40 pb-24 text-left">
+        <article class="max-w-7xl mx-auto px-8">
+            <header class="max-w-4xl mb-24 text-left">
+                <button onclick="showPage('home')" class="text-[10px] tracking-[0.3em] text-gray-300 uppercase mb-8 hover:text-black transition">← 返回首頁 Back to Index</button>
+                <div class="flex items-center space-x-4 mb-8">
+                    <span class="text-[10px] tracking-[0.3em] text-gray-400 uppercase font-medium">Digital Human Solution</span>
+                    <div class="h-px w-12 bg-gray-200"></div>
+                    <span class="text-[10px] tracking-[0.3em] text-gray-400 uppercase font-medium">AIGC Video Production</span>
+                </div>
+                <h1 class="text-5xl md:text-7xl font-light serif mb-12 leading-tight text-black">網易汽車 AI 主播：<br/>零實拍全片生成</h1>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-12 py-10 border-t border-gray-100 font-light text-sm text-black">
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">Client</h5><p>網易汽車 / NetEase Auto</p></div>
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">Role</h5><p>AIGC 視覺/視頻生成</p></div>
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">Tech</h5><p>千夢 / 即夢 / 可靈</p></div>
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">Release</h5><p>2025.11.25</p></div>
+                </div>
+            </header>
+
+            <section class="mb-32 text-center">
+                <!-- 恢復標準 video 標籤 -->
+                <div class="video-container shadow-2xl">
+                    <video controls preload="auto" playsinline poster="https://github.com/1uck99ir1/works/blob/main/%E5%BC%A0%E9%BD%90%E5%B0%86%E5%86%9B/%E6%88%AA%E5%B1%8F2025-11-03%2016.13.53.png?raw=true">
+                        <source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E5%BC%A0%E9%BD%90%E5%B0%86%E5%86%9B/1772187235689.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="mt-4 text-center">
+                    <a href="https://www.bilibili.com/video/BV15GAUznEok/?spm_id_from=333.1387.homepage.video_card.click&vd_source=095bacc9ad42f80702067d49cc0e624f" target="_blank" class="fallback-link font-medium text-[10px]">影片無法載入？點此直接播放 / Watch via Direct Link</a>
+                </div>
+                <p class="mt-4 text-xs text-gray-400 italic">主編 2 分鐘配合克隆，AI 演繹十餘個鏡頭</p>
+            </section>
+
+            <section class="grid grid-cols-1 md:grid-cols-12 gap-16 mb-40 text-justify font-light text-gray-500 leading-relaxed text-left">
+                <div class="md:col-span-5 text-left">
+                    <h3 class="text-2xl font-light serif mb-8 text-black text-left">技術突破：2 分鐘克隆與零實拍</h3>
+                    <p class="text-gray-400 text-sm text-left">主編僅需花 2 分鐘配合採集克隆人像與音色，AI 即可替他完成全片十餘個鏡頭的演繹。</p>
+                </div>
+                <div class="md:col-span-7">
+                    <p class="text-xl md:text-2xl font-light serif leading-relaxed text-gray-600 mb-8">藍上衣黑褲，神態動作精準還原，真正實現了「零實拍搞定全片」。這不僅是效率的提升，更是對內容生產模式的重構。</p>
+                    <div class="flex flex-wrap gap-4 mt-8">
+                        <span class="px-4 py-2 bg-gray-100 text-[10px] tracking-widest uppercase rounded-full">#千夢引擎</span>
+                        <span class="px-4 py-2 bg-gray-100 text-[10px] tracking-widest uppercase rounded-full">#即夢 & 可靈</span>
+                        <span class="px-4 py-2 bg-gray-100 text-[10px] tracking-widest uppercase rounded-full">#Sora 2</span>
+                        <span class="px-4 py-2 bg-gray-100 text-[10px] tracking-widest uppercase rounded-full">#尊界S800</span>
+                    </div>
+                </div>
+            </section>
+            
+            <footer class="py-32 flex justify-center border-t border-gray-100"><button onclick="showPage('home')" class="text-xs tracking-widest text-gray-400 font-medium">BACK TO INDEX</button></footer>
+        </article>
+    </div>
+
+    <!-- 7. 想下班的驢詳情頁 -->
+    <div id="donkey-page" class="hidden-page fade-in pt-40 pb-24 text-left">
+        <article class="max-w-7xl mx-auto px-8">
+            <header class="max-w-4xl mb-24 text-left">
+                <button onclick="showPage('home')" class="text-[10px] tracking-[0.3em] text-gray-300 uppercase mb-8 hover:text-black transition">← 返回首頁 Back to Index</button>
+                <div class="flex items-center space-x-4 mb-8">
+                    <span class="text-[10px] tracking-[0.3em] text-gray-400 uppercase font-medium">IP Incubation</span>
+                    <div class="h-px w-12 bg-gray-200"></div>
+                    <span class="text-[10px] tracking-[0.3em] text-gray-400 uppercase font-medium">Content Growth</span>
+                </div>
+                <h1 class="text-5xl md:text-7xl font-light serif mb-12 leading-tight text-black">職場 IP《想下班的驢》<br/>品牌孵化與增長</h1>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-12 py-10 border-t border-gray-100 font-light text-sm text-black">
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">Project</h5><p>自孵化 / 網易內部</p></div>
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">Role</h5><p>主理人 / 內容運營</p></div>
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">Platform</h5><p>小紅書 (Red)</p></div>
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">Status</h5><p>1.4W+ 粉絲 / 持續增長</p></div>
+                </div>
+            </header>
+
+            <section class="mb-32">
+                <div class="image-container aspect-[16/9] shadow-sm">
+                    <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/%E6%88%AA%E5%B1%8F2026-02-06%2010.15.27.png" class="zoom-clickable" onclick="openLightbox(this.src)">
+                </div>
+            </section>
+
+            <section class="grid grid-cols-1 md:grid-cols-12 gap-16 mb-40 text-justify font-light text-gray-500 leading-relaxed text-left">
+                <div class="md:col-span-5 text-left">
+                    <h3 class="text-2xl font-light serif mb-8 text-black text-left">視覺敘事與共情傳播</h3>
+                    <p class="text-gray-400 text-sm text-left">以職場生活為洞察切入點，通過視覺語言構建“驢”這一人格化 IP，引發年輕職場群體的深度共鳴。</p>
+                </div>
+                <div class="md:col-span-7">
+                    <p class="text-xl md:text-2xl font-light serif leading-relaxed text-gray-600 mb-8">不僅僅是插畫，更是一場關於職場情緒的視覺實驗。通過持續輸出高質量、高共鳴的內容，實現了從 2k+ 到 1.4W+ 的自然粉絲增長，驗證了視覺在內容傳播中的核心驅動力。</p>
+                    <div class="pt-8">
+                        <a href="https://www.xiaohongshu.com/user/profile/6393158b0000000027028106?xsec_token=ABQv_Los0DuWctLfv3HGb1a4EGkUYnDE3UR4448bgX7Hg=&xsec_source=pc_search" target="_blank" class="fallback-link text-xs">訪問小紅書主頁 →</a>
+                    </div>
+                </div>
+            </section>
+
+            <section class="space-y-16 mb-32 pt-16 border-t border-gray-100 text-center">
+                <h4 class="text-[10px] tracking-[0.4em] text-gray-400 uppercase font-medium">Featured Content - 爆款筆記</h4>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+                    <!-- 筆記圖片網格 -->
+                    <div class="image-container aspect-[3/4]" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/1.1.jpg')"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/1.1.jpg"></div>
+                    <div class="image-container aspect-[3/4]" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/2.1.jpg')"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/2.1.jpg"></div>
+                    <div class="image-container aspect-[3/4]" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/3.1.jpg')"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/3.1.jpg"></div>
+                    <div class="image-container aspect-[3/4]" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/4.1.jpg')"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/4.1.jpg"></div>
+                    <div class="image-container aspect-[3/4]" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/5.1.jpg')"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/5.1.jpg"></div>
+                    <div class="image-container aspect-[3/4]" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/6.1.jpg')"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/6.1.jpg"></div>
+                    <div class="image-container aspect-[3/4]" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/7.1.jpg')"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/7.1.jpg"></div>
+                </div>
+                <div class="mt-12">
+                    <a href="https://www.xiaohongshu.com/discovery/item/686ba9b10000000024008a97?source=webshare&xhsshare=pc_web&xsec_token=ABCR2w6Dr3ByLdHWGwaZF6rZLafovdN_oGYsGCnj2AAe0=&xsec_source=pc_share" target="_blank" 
+                       class="inline-block px-8 py-3 border border-black text-xs tracking-widest uppercase hover:bg-black hover:text-white transition-all duration-300">
+                        查看【人材市場】原筆記 →
+                    </a>
+                </div>
+            </section>
+            
+            <footer class="py-32 flex justify-center border-t border-gray-100"><button onclick="showPage('home')" class="text-xs tracking-widest text-gray-400 font-medium">BACK TO INDEX</button></footer>
+        </article>
+    </div>
+
+    <!-- 8. About 頁面 -->
+    <div id="about-page" class="hidden-page fade-in pt-48 pb-24 text-left">
+        <section class="max-w-7xl mx-auto px-8">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-40 text-left">
+                <div class="md:col-span-7 space-y-12">
+                    <h1 class="text-4xl md:text-5xl font-light serif leading-tight text-black font-medium text-left">你好，我是 楊奕文。</h1>
+                    <p class="text-lg text-gray-500 font-light leading-relaxed text-justify">畢業於倫敦藝術大學 (UAL) 插畫與視覺媒體專業，國畫專業科班出身。我通過 AIGC 流程、品牌商業邏輯與高品質視覺的結合，探尋視覺如何驅動內容的有效增長。</p>
+                    <div class="space-y-4 text-left">
+                        <h4 class="text-[10px] tracking-widest text-gray-300 uppercase font-medium">Contact</h4>
+                        <p class="text-xl font-light text-black">WeChat: yihuo22</p>
+                        <div class="flex space-x-12 text-[10px] tracking-widest text-gray-400 uppercase pt-4 font-medium">
+                            <a href="https://www.instagram.com/1uck99ir1/" target="_blank" class="hover:text-black transition">Instagram</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- 頭像 -->
+                <div class="md:col-span-4 md:col-start-9">
+                     <div class="aspect-[3/4] image-container rounded-sm overflow-hidden shadow-lg">
+                         <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E5%A4%B4%E5%83%8F/%E8%B5%84%E6%BA%90%201.png" alt="Yiwen Yang" class="w-full h-full object-cover">
+                     </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 border-t border-gray-100 pt-24 text-left">
+                <div class="md:col-span-4"><h3 class="text-2xl font-light serif text-black">詳細履歷</h3><p class="text-[10px] tracking-[0.2em] text-gray-300 uppercase mt-2 font-medium">Experience</p></div>
+                <div class="md:col-span-8 space-y-20 font-light text-left">
+                    <div class="space-y-12 text-left">
+                        <!-- 網易傳媒 -->
+                        <div class="resume-item pb-10 border-b border-gray-100 text-left">
+                            <h5 class="text-lg font-medium serif mb-4 text-black">網易傳媒（微創軟件） | 創意設計師（內容與品牌傳播方向） / 2024.8 – 至今</h5>
+                            <ul class="text-sm text-gray-500 leading-relaxed font-light text-left list-disc list-outside ml-4 space-y-2">
+                                <li>服務網易雲音樂、林肯汽車、比亞迪騰勢、長安馬自達、Jeep、中國郵政、優衣庫等品牌傳播項目，參與多行業品牌內容的視覺表達與傳播執行。</li>
+                                <li>參與汽車品牌 AIGC 創意影像內容製作，將生成式視覺應用於品牌數字傳播場景，完成多支實際上線的商業傳播內容，拓展品牌影像表達方式。</li>
+                                <li>負責網易雲音樂落地頁專題及品牌 H5 傳播視覺設計，在項目中將 AIGC 內容融入互動傳播載體，支持線上 Campaign 穩定交付。</li>
+                                <li>完成長圖與活動 KV 等數字傳播視覺內容設計，並參與品牌線傳播物料及線下活動延展支持。</li>
+                                <li>運營小紅書賬號《想下班的驢》，以視覺敘事構建職場 IP 內容，通過持續內容迭代實現賬號從 2,000 粉增長至 14,000 粉，依靠自然流量形成穩定增長路徑。</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- 熹木思群 -->
+                        <div class="resume-item pb-10 border-b border-gray-100 text-left">
+                            <h5 class="text-lg font-medium serif mb-4 text-black">熹木思群文化傳媒有限公司 | 創意設計師 / 2024.3 – 2024.4</h5>
+                            <ul class="text-sm text-gray-500 leading-relaxed font-light text-left list-disc list-outside ml-4 space-y-2">
+                                <li>參與商業地產與品牌活動視覺策劃，輸出活動主視覺與傳播延展方案。</li>
+                                <li>主導 SM 廣場五一活動主視覺設計，傳播觸達逾 10 萬人次。</li>
+                                <li>支持太古匯、恆隆廣場等商業項目比稿，完成創意概念視覺化表達與提案呈現。</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- 辛卡司傳媒 -->
+                        <div class="resume-item pb-10 border-b border-gray-100 text-left">
+                            <h5 class="text-lg font-medium serif mb-4 text-black">上海辛卡司傳媒科技有限公司 | 視覺策劃設計師 / 2022.12 – 2023.11</h5>
+                            <ul class="text-sm text-gray-500 leading-relaxed font-light text-left list-disc list-outside ml-4 space-y-2">
+                                <li>參與 XR/AR 大空間數字體驗項目，支持線下活動與沉浸式互動內容設計。</li>
+                                <li>面向多類型項目需求的 AR 創意內容設計與方案視覺表達。</li>
+                                <li>負責小程序端 AR 體驗界面設計，並協同建模、動畫及技術團隊推進項目落地。</li>
+                                <li>參與 Rokid Jungle 2023 空間計算發佈會及歐萊雅 BRANSTORM 總決賽 AR 漫遊項目。</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- OpenMMLab -->
+                        <div class="resume-item pb-10 border-b border-gray-100 text-left">
+                            <h5 class="text-lg font-medium serif mb-4 text-black">上海人工智能創新中心 (OpenMMLab) | 視覺設計實習生 / 2022.5 – 2022.9</h5>
+                            <ul class="text-sm text-gray-500 leading-relaxed font-light text-left list-disc list-outside ml-4 space-y-2">
+                                <li>參與 OpenXLab 官網視覺設計與 AIGC 視覺實驗項目。</li>
+                                <li>負責 OpenMMLab 2.0 版本運營 KV 及系列周邊視覺物料延展設計，支持開發者社區傳播活動。</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-8 font-light text-sm text-gray-500 text-left">
+                        <h4 class="text-[10px] tracking-widest text-gray-300 uppercase font-medium">Education</h4>
+                        <p class="text-left leading-relaxed">倫敦藝術大學 (UAL) / 碩士 · 插畫與視覺媒體 (2020.10 - 2022.6)<br/>上海大學上海美術學院 / 學士 · 中國畫 (2015.9 - 2019.7)</p>
+                    </div>
+
+                    <!-- 新增：獎項與項目 -->
+                    <div class="space-y-8 font-light text-sm text-gray-500 text-left">
+                        <h4 class="text-[10px] tracking-widest text-gray-300 uppercase font-medium">Awards & Projects</h4>
+                        <ul class="text-left leading-relaxed space-y-3">
+                            <li><strong class="font-medium text-black">Jeep 角鬥士《野外狂圖》品牌傳播項目</strong> (2025) <br/><span class="text-gray-400">AIAD Awards 2025 AI 廣告品牌創新設計大賽優秀獎</span></li>
+                            <li><strong class="font-medium text-black">《火星遊樂場》</strong> 數字插畫項目 (2021) <br/><span class="text-gray-400">Hiii Illustration 插畫大賽優秀作品獎</span></li>
+                            <li><strong class="font-medium text-black">《花園》</strong> AI 主題藝術創作項目 (2021) <br/><span class="text-gray-400">BBC Creative AI Open Call 創意徵集，入選創意內容庫</span></li>
+                            <li><strong class="font-medium text-black">《人是機器人的神》</strong> 系列科幻插畫 (2020) <br/><span class="text-gray-400">獲 HiiiBrand 首頁推薦作品</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <footer class="py-20 text-center border-t border-gray-100 text-[9px] tracking-[0.6em] text-gray-300 uppercase font-medium">© 2025 Yiwen Yang. All Rights Reserved.</footer>
+    </div>
+
+    <!-- 9. 人是機器人的神 (新項目詳情頁) -->
+    <div id="robot-god-page" class="hidden-page fade-in pt-40 pb-24 text-left">
+        <article class="max-w-7xl mx-auto px-8">
+            <header class="max-w-4xl mb-24 text-left">
+                <button onclick="showPage('home')" class="text-[10px] tracking-[0.3em] text-gray-300 uppercase mb-8 hover:text-black transition">← 返回首頁 Back to Index</button>
+                <div class="flex items-center space-x-4 mb-8">
+                    <span class="text-[10px] tracking-[0.3em] text-gray-400 uppercase font-medium">Illustration</span>
+                    <div class="h-px w-12 bg-gray-200"></div>
+                    <span class="text-[10px] tracking-[0.3em] text-gray-400 uppercase font-medium">Sci-Fi Narrative</span>
+                </div>
+                <h1 class="text-5xl md:text-7xl font-light serif mb-12 leading-tight text-black">人是機器人的神：<br/>科幻敘事插畫系列</h1>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-12 py-10 border-t border-gray-100 font-light text-sm text-black">
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">Project</h5><p>個人創作</p></div>
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">Type</h5><p>數字插畫</p></div>
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">Award</h5><p>HiiiBrand 推薦</p></div>
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">Year</h5><p>2020</p></div>
+                </div>
+            </header>
+
+            <section class="mb-32">
+                <div class="image-container shadow-2xl cursor-zoom-in" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/creator.jpg')">
+                     <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/creator.jpg" alt="Creator Main Visual">
+                </div>
+            </section>
+
+            <section class="grid grid-cols-1 md:grid-cols-12 gap-16 mb-40 text-justify font-light text-gray-500 leading-relaxed text-left">
+                <div class="md:col-span-5 text-left">
+                    <h3 class="text-2xl font-light serif mb-8 text-black text-left">創作自述</h3>
+                    <p class="text-gray-400 text-sm text-left">正如我們人類追求神性，機器人在未來或許也會在生育、宗教、審美以及死亡里模擬人類。</p>
+                </div>
+                <div class="md:col-span-7">
+                    <p class="mb-8">我想用插圖表現這幾個場景，在這個項目里探討的是人類的社會與機器人的不同。這種差異造成的機器人把人類當神的情況可能是幽默又荒謬的。</p>
+                    <p class="mb-8">通過對宗教構圖的挪用與科幻元素的置換，我試圖構建一個既熟悉又陌生的未來圖景：當創造者成為被崇拜的神祇，技術的冰冷與信仰的狂熱在畫面中交織碰撞。</p>
+                </div>
+            </section>
+
+            <section class="space-y-16 mb-32 pt-16 border-t border-gray-100 text-center">
+                <h4 class="text-[10px] tracking-[0.4em] text-gray-400 uppercase font-medium">Gallery - 系列作品</h4>
+                <!-- 瀑布流佈局 Masonry Layout -->
+                <div class="columns-1 md:columns-2 lg:columns-2 gap-6 space-y-6 mt-12 masonry-col">
+                    <div class="masonry-item">
+                        <div class="image-container" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/birth.jpg')">
+                            <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/birth.jpg" alt="Birth">
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2 text-left">Birth / 誕生</p>
+                    </div>
+                    <div class="masonry-item">
+                        <div class="image-container" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/death.jpg')">
+                            <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/death.jpg" alt="Death">
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2 text-left">Death / 死亡</p>
+                    </div>
+                    <div class="masonry-item">
+                        <div class="image-container" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/fire.jpg')">
+                            <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/fire.jpg" alt="Fire">
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2 text-left">Fire / 文明</p>
+                    </div>
+                    <div class="masonry-item">
+                        <div class="image-container" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/makeup.jpg')">
+                            <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/makeup.jpg" alt="Makeup">
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2 text-left">Makeup / 審美</p>
+                    </div>
+                </div>
+            </section>
+            <footer class="py-32 flex justify-center border-t border-gray-100"><button onclick="showPage('home')" class="text-xs tracking-widest text-gray-400 font-medium">BACK TO INDEX</button></footer>
+        </article>
+    </div>
+
+    <!-- 10. 矛盾的海洋詳情頁 (瀑布流修復) -->
+    <div id="ocean-page" class="hidden-page fade-in pt-40 pb-24 text-left">
+        <article class="max-w-7xl mx-auto px-8">
+            <header class="max-w-4xl mb-24 text-left">
+                <button onclick="showPage('home')" class="text-[10px] tracking-[0.3em] text-gray-300 uppercase mb-8 hover:text-black transition">← 返回首頁 Back to Index</button>
+                <div class="flex items-center space-x-4 mb-8">
+                    <span class="text-[10px] tracking-[0.3em] text-gray-400 uppercase font-medium">Virtual Exhibition</span>
+                    <div class="h-px w-12 bg-gray-200"></div>
+                    <span class="text-[10px] tracking-[0.3em] text-gray-400 uppercase font-medium">Social Observation</span>
+                </div>
+                <h1 class="text-5xl md:text-7xl font-light serif mb-12 leading-tight text-black">矛盾的海洋：<br/>虛擬展覽與社會觀察</h1>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-12 py-10 border-t border-gray-100 font-light text-sm text-black">
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">Project</h5><p>個人創作</p></div>
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">Type</h5><p>虛擬策展 / 插畫</p></div>
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">Year</h5><p>2020 - 2021</p></div>
+                </div>
+            </header>
+
+            <section class="mb-32">
+                <div class="video-container shadow-2xl">
+                     <div class="relative w-full h-full">
+                        <video autoplay muted loop playsinline class="w-full h-full object-cover" controls>
+                            <source src="https://github.com/1uck99ir1/works/raw/refs/heads/main/ocean/%E6%88%91%E7%9A%84%E9%A1%B9%E7%9B%AE%20(3)%202.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+                <div class="mt-4 text-center">
+                    <a href="https://github.com/1uck99ir1/works/raw/refs/heads/main/ocean/%E6%88%91%E7%9A%84%E9%A1%B9%E7%9B%AE%20(3)%202.mp4" target="_blank" class="fallback-link font-medium text-[10px]">無法播放？直接觀看視頻源</a>
+                </div>
+            </section>
+
+            <section class="grid grid-cols-1 md:grid-cols-12 gap-16 mb-40 text-justify font-light text-gray-500 leading-relaxed text-left">
+                <div class="md:col-span-5 text-left">
+                    <h3 class="text-2xl font-light serif mb-8 text-black text-left">關於「矛盾的海洋」</h3>
+                    <p class="text-gray-400 text-sm text-left">這是我對 2020 和 2021 年的感想，也是對後疫情時代人際連接方式的反思。</p>
+                </div>
+                <div class="md:col-span-7">
+                    <p class="mb-8">我們被一片看似自由的，但有邊界的海洋包裹著。數以萬計的水珠聯繫著彼此的心意，彼此相連著又分離著。他們圍繞著自我的個體凝結成一片溫暖的水域。這些水域是分離的，它們的邊界是無形的，邊界之外是寂靜的真空。這些真空和水域一起組成了一片矛盾的大海。</p>
+                    <p class="mb-8">疫情使得人們生活的時空被刻意的分割開了，我們不得不通過互聯網來連接彼此。互聯網這片大海看似是一切可見的，但實際有著不可見的邊界。在互聯網，社交媒體的背景下，我們看似掌握了觀看者的主動權，但我們看不到隱藏在網頁背後的分發機制和展示機制。</p>
+                    <p class="mb-8">疫情使地區和地區，人和人之間的邊界越發明顯。數據為主導的網絡社會在放大我們的偏見，並推動我們走向令人不安的未來。我創建了一個虛擬展覽，試著去詮釋我生活的這片“海洋”。</p>
+                    
+                    <div class="pt-8">
+                        <a href="https://yiweny000.wixsite.com/website/ocean" target="_blank" class="inline-block px-8 py-3 border border-black text-xs tracking-widest uppercase hover:bg-black hover:text-white transition-all duration-300">參觀線上虛擬展覽 →</a>
+                    </div>
+                </div>
+            </section>
+
+            <section class="space-y-16 mb-32 pt-16 border-t border-gray-100 text-center">
+                <h4 class="text-[10px] tracking-[0.4em] text-gray-400 uppercase font-medium">Illustrations - 系列插畫</h4>
+                <!-- 修復：使用 Masonry 佈局讓圖片按照原比例展示 -->
+                <div class="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6 mt-12 masonry-col">
+                    <div class="masonry-item">
+                        <div class="image-container" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/ocean/1.jpg')">
+                            <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/ocean/1.jpg" alt="Ocean 1">
+                        </div>
+                    </div>
+                    <div class="masonry-item">
+                        <div class="image-container" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/ocean/02.jpg')">
+                            <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/ocean/02.jpg" alt="Ocean 2">
+                        </div>
+                    </div>
+                    <div class="masonry-item">
+                        <div class="image-container" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/ocean/03.jpg')">
+                            <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/ocean/03.jpg" alt="Ocean 3">
+                        </div>
+                    </div>
+                    <div class="masonry-item">
+                        <div class="image-container" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/ocean/4.jpg')">
+                            <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/ocean/4.jpg" alt="Ocean 4">
+                        </div>
+                    </div>
+                    <div class="masonry-item">
+                        <div class="image-container" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/ocean/5.jpg')">
+                            <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/ocean/5.jpg" alt="Ocean 5">
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <footer class="py-32 flex justify-center border-t border-gray-100"><button onclick="showPage('home')" class="text-xs tracking-widest text-gray-400 font-medium">BACK TO INDEX</button></footer>
+        </article>
+    </div>
+
+    <!-- 11. 寧波海報詳情頁 (新增) -->
+    <div id="ningbo-page" class="hidden-page fade-in pt-40 pb-24 text-left">
+        <article class="max-w-7xl mx-auto px-8">
+            <header class="max-w-4xl mb-24 text-left">
+                <button onclick="showPage('home')" class="text-[10px] tracking-[0.3em] text-gray-300 uppercase mb-8 hover:text-black transition">← 返回首頁 Back to Index</button>
+                <div class="flex items-center space-x-4 mb-8">
+                    <span class="text-[10px] tracking-[0.3em] text-gray-400 uppercase font-medium">City Branding</span>
+                    <div class="h-px w-12 bg-gray-200"></div>
+                    <span class="text-[10px] tracking-[0.3em] text-gray-400 uppercase font-medium">Visual Design</span>
+                </div>
+                <h1 class="text-5xl md:text-7xl font-light serif mb-12 leading-tight text-black">
+                    “寧波與世界” 城市形象美學海報<br/>
+                    <span class="text-3xl md:text-4xl text-gray-500 mt-6 block">互聯網傳播推廣方案</span>
+                </h1>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-12 py-10 border-t border-gray-100 font-light text-sm text-black">
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">Project</h5><p>城市形象推廣</p></div>
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">Role</h5><p>視覺設計 / 海報創意</p></div>
+                    <div><h5 class="text-[9px] uppercase mb-3 text-gray-400 font-medium">Theme</h5><p>非遺與現代美學</p></div>
+                </div>
+            </header>
+
+            <section class="grid grid-cols-1 md:grid-cols-12 gap-16 mb-40 text-justify font-light text-gray-500 leading-relaxed text-left">
+                <div class="md:col-span-5 text-left">
+                    <h3 class="text-2xl font-light serif mb-8 text-black text-left">設計概念：連接傳統與未來</h3>
+                    <p class="text-gray-400 text-sm text-left">將寧波的本土文化與現代城市美學相結合，打造具備國際視野的傳播視覺。</p>
+                </div>
+                <div class="md:col-span-7">
+                    <p class="text-xl md:text-2xl font-light serif leading-relaxed text-gray-600 mb-8">本系列海報作為互聯網傳播推廣方案的核心視覺，旨在通過重新解構寧波本土的文化符號與非遺元素，以更符合當下數字傳播語境的現代設計手法進行呈現。</p>
+                    <p class="mb-8">視覺語言上，我們試圖打破傳統文化宣傳的刻板印象，將“寧波”與“世界”的對話轉化為具體的圖形與色彩張力，讓在地文化在互聯網平台中獲得更廣泛的共鳴與二次傳播。</p>
+                </div>
+            </section>
+
+            <section class="space-y-16 mb-32 pt-16 border-t border-gray-100 text-center">
+                <h4 class="text-[10px] tracking-[0.4em] text-gray-400 uppercase font-medium">Poster Series - 系列海報</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mt-12">
+                    <div class="image-container shadow-sm" onclick="openLightbox('https://github.com/1uck99ir1/works/raw/main/%E5%AE%81%E6%B3%A2%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F/%E5%AE%81%E6%B3%A2%E6%96%87%E5%8C%96%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F1.png')">
+                        <img src="https://github.com/1uck99ir1/works/raw/main/%E5%AE%81%E6%B3%A2%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F/%E5%AE%81%E6%B3%A2%E6%96%87%E5%8C%96%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F1.png" alt="寧波海報 1">
+                    </div>
+                    <div class="image-container shadow-sm" onclick="openLightbox('https://github.com/1uck99ir1/works/raw/main/%E5%AE%81%E6%B3%A2%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F/%E5%AE%81%E6%B3%A2%E6%96%87%E5%8C%96%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F2.png')">
+                        <img src="https://github.com/1uck99ir1/works/raw/main/%E5%AE%81%E6%B3%A2%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F/%E5%AE%81%E6%B3%A2%E6%96%87%E5%8C%96%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F2.png" alt="寧波海報 2">
+                    </div>
+                    <div class="image-container shadow-sm" onclick="openLightbox('https://github.com/1uck99ir1/works/raw/main/%E5%AE%81%E6%B3%A2%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F/%E5%AE%81%E6%B3%A2%E6%96%87%E5%8C%96%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F4.jpg')">
+                        <img src="https://github.com/1uck99ir1/works/raw/main/%E5%AE%81%E6%B3%A2%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F/%E5%AE%81%E6%B3%A2%E6%96%87%E5%8C%96%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F4.jpg" alt="寧波海報 4">
+                    </div>
+                    <div class="image-container shadow-sm" onclick="openLightbox('https://github.com/1uck99ir1/works/raw/main/%E5%AE%81%E6%B3%A2%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F/%E5%AE%81%E6%B3%A2%E6%96%87%E5%8C%96%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F5.jpg')">
+                        <img src="https://github.com/1uck99ir1/works/raw/main/%E5%AE%81%E6%B3%A2%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F/%E5%AE%81%E6%B3%A2%E6%96%87%E5%8C%96%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F5.jpg" alt="寧波海報 5">
+                    </div>
+                </div>
+            </section>
+            <footer class="py-32 flex justify-center border-t border-gray-100"><button onclick="showPage('home')" class="text-xs tracking-widest text-gray-400 font-medium">BACK TO INDEX</button></footer>
+        </article>
+    </div>
+
+    <script>
+        function showPage(pageId) {
+            const pages = ['home-page', 'denza-page', 'lincoln-page', 'lincoln-aigc-page', 'netease-page', 'netease-auto-page', 'about-page', 'donkey-page', 'ocean-page', 'robot-god-page', 'ningbo-page'];
+            window.scrollTo({ top: 0, behavior: 'instant' });
+            pages.forEach(p => { const el = document.getElementById(p); if(el) el.classList.add('hidden-page'); });
+            const target = document.getElementById(pageId + '-page'); if(target) target.classList.remove('hidden-page');
+        }
+        
+        function openLightbox(src, type = 'image') {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            const videoWrapper = document.getElementById('video-wrapper');
+            const lightboxVideo = document.getElementById('lightbox-video');
+            
+            // 重置狀態
+            lightboxImg.classList.add('hidden');
+            lightboxImg.style.display = 'none'; 
+            videoWrapper.classList.add('hidden');
+            videoWrapper.style.display = 'none';
+            lightbox.classList.remove('scroll-mode');
+            
+            if (type === 'video') {
+                videoWrapper.classList.remove('hidden');
+                videoWrapper.style.display = 'flex';
+                lightboxVideo.src = src;
+                lightboxVideo.play();
+            } else {
+                lightboxImg.classList.remove('hidden');
+                lightboxImg.style.display = 'block'; // 強制顯示
+                lightboxImg.src = src;
+                
+                // 檢測長圖邏輯
+                const img = new Image();
+                img.src = src;
+                img.onload = function() {
+                     if (this.height > window.innerHeight * 1.5) {
+                         lightbox.classList.add('scroll-mode');
+                     }
+                }
+            }
+            
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            const video = document.getElementById('lightbox-video');
+            video.pause(); video.src = ""; lightbox.classList.remove('active'); document.body.style.overflow = ''; 
+        }
+
+        function filter(type) {
+            const items = document.querySelectorAll('.project-card');
+            const btns = document.querySelectorAll('.filter-btn');
+            btns.forEach(b => b.classList.remove('active'));
+            document.getElementById(type + '-btn').classList.add('active');
+            items.forEach(item => {
+                if (type === 'all' || item.getAttribute('data-cat') === type) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
