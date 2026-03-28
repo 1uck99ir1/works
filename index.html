@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>楊奕文 Yiwen Yang | 視覺敘事與內容實踐</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Noto+Serif+SC:wght@300;400;500&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.loli.net">
+    <link rel="preconnect" href="https://fonts.loli.net" crossorigin>
+    <link href="https://fonts.loli.net/css2?family=Inter:wght@300;400;500&family=Noto+Serif+SC:wght@300;400;500&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-warm: #fcfaf8; 
@@ -122,7 +122,7 @@
             display: none;
             justify-content: center;
             align-items: center; 
-            padding: 40px;
+            padding: 2vw; /* 自适应边距 */
             cursor: zoom-out;
             opacity: 0;
             transition: opacity 0.3s ease;
@@ -143,16 +143,17 @@
         #lightbox.scroll-mode {
             align-items: flex-start;
             overflow-y: auto;
+            padding: 0; /* 長圖模式不需要全包圍邊距 */
         }
         #lightbox.scroll-mode #lightbox-content {
             height: auto;
             align-items: flex-start;
-            padding-top: 40px;
-            padding-bottom: 40px;
+            padding-top: 0;
+            padding-bottom: 0;
         }
         #lightbox img, #lightbox video {
-            max-width: 95%;
-            max-height: 95vh;
+            max-width: 100%;
+            max-height: 100%;
             width: auto;
             height: auto;
             object-fit: contain;
@@ -162,8 +163,9 @@
         }
         #lightbox.scroll-mode img {
             max-height: none;
-            width: 800px;
-            max-width: 100%;
+            width: 100%;
+            max-width: 1400px; /* 在大屏幕上限制最大宽度，其余情况自适应100% */
+            margin: 0 auto;
         }
         #lightbox.active img, #lightbox.active video {
             transform: scale(1);
@@ -206,9 +208,32 @@
             color: #1a1a1a;
             border-color: #1a1a1a;
         }
+        
+        .watermark {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9998;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' transform='rotate(-30, 150, 150)' fill='rgba(0,0,0,0.03)' font-size='40' font-family='sans-serif' font-weight='bold' letter-spacing='0.1em'>EVEN</text></svg>");
+            background-repeat: repeat;
+        }
+
+        img, video {
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
     </style>
 </head>
 <body class="antialiased text-left">
+
+    <div class="watermark"></div>
 
     <!-- 燈箱 -->
     <div id="lightbox" onclick="closeLightbox()">
@@ -227,7 +252,7 @@
         <div class="max-w-7xl mx-auto px-6 md:px-8 h-20 md:h-24 flex justify-between items-center text-left">
             <div class="flex items-center space-x-3 md:space-x-4 cursor-pointer shrink-0" onclick="showPage('home')">
                 <div class="w-7 h-7 md:w-8 md:h-8 rounded-full overflow-hidden bg-gray-200 shrink-0">
-                    <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E5%A4%B4%E5%83%8F/%E8%B5%84%E6%BA%90%201.png" alt="Avatar" class="w-full h-full object-cover">
+                    <img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E5%A4%B4%E5%83%8F/%E8%B5%84%E6%BA%90%201.png" alt="Avatar" class="w-full h-full object-cover">
                 </div>
                 <div class="text-sm md:text-lg tracking-[0.1em] md:tracking-[0.2em] font-light whitespace-nowrap">
                     YIWEN YANG <span class="hidden md:inline-block text-gray-300 ml-2">/</span> <span class="hidden md:inline-block text-sm ml-2 font-normal text-gray-500">楊奕文</span>
@@ -271,7 +296,7 @@
                 <!-- 1. 騰勢 N8L -->
                 <div class="project-card group cursor-pointer text-left" data-cat="live" onclick="showPage('denza')">
                     <div class="aspect-[16/10] image-container mb-8">
-                        <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/The_evening_sunlight_2k_202602131608.jpeg?raw=true" alt="騰勢 N8L">
+                        <img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/The_evening_sunlight_2k_202602131608.jpeg" alt="騰勢 N8L">
                     </div>
                     <div class="flex justify-between items-end">
                         <div class="space-y-2 text-left">
@@ -285,7 +310,7 @@
                 <!-- 2. 林肯紋樣設計 -->
                 <div class="project-card group cursor-pointer text-left" data-cat="live" onclick="showPage('lincoln')">
                     <div class="aspect-[16/10] image-container mb-8">
-                        <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/%E5%9B%BE%E7%89%874.jpg" alt="林肯紋樣">
+                        <img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/%E5%9B%BE%E7%89%874.jpg" alt="林肯紋樣">
                     </div>
                     <div class="flex justify-between items-end">
                         <div class="space-y-2 text-left">
@@ -299,7 +324,7 @@
                 <!-- 3. 林肯 AIGC 影片 -->
                 <div class="project-card group cursor-pointer text-left" data-cat="live" onclick="showPage('lincoln-aigc')">
                     <div class="aspect-[16/10] image-container mb-8">
-                        <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/d8b3840e0b5e1a4ff2eaeeceda5d935a.JPG" alt="林肯 AIGC">
+                        <img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/d8b3840e0b5e1a4ff2eaeeceda5d935a.JPG" alt="林肯 AIGC">
                     </div>
                     <div class="flex justify-between items-end text-left">
                         <div class="space-y-2 text-left">
@@ -313,7 +338,7 @@
                 <!-- 4. 網易雲音樂 -->
                 <div class="project-card group cursor-pointer text-left" data-cat="live" onclick="showPage('netease')">
                     <div class="aspect-[16/10] image-container mb-8">
-                        <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E9%83%BD%E5%B8%82%E5%BE%8B%E5%8A%A8.jpg" alt="網易雲音樂">
+                        <img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E9%83%BD%E5%B8%82%E5%BE%8B%E5%8A%A8.jpg" alt="網易雲音樂">
                     </div>
                     <div class="flex justify-between items-end text-left">
                         <div class="space-y-2 text-left">
@@ -327,7 +352,7 @@
                 <!-- 5. 想下班的驢 -->
                 <div class="project-card group cursor-pointer text-left" data-cat="live" onclick="showPage('donkey')">
                     <div class="aspect-[16/10] image-container mb-8">
-                        <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/Replace_the_background_4k_202601271538.jpeg?raw=true" alt="IP Project">
+                        <img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/Replace_the_background_4k_202601271538.jpeg" alt="IP Project" style="object-position: center 20%;">
                     </div>
                     <div class="flex justify-between items-end">
                         <div class="space-y-2 text-left">
@@ -341,7 +366,7 @@
                 <!-- 6. 網易汽車 AI 主播 -->
                 <div class="project-card group cursor-pointer text-left" data-cat="live" onclick="showPage('netease-auto')">
                     <div class="aspect-[16/10] image-container mb-8">
-                        <img src="https://github.com/1uck99ir1/works/blob/main/%E5%BC%A0%E9%BD%90%E5%B0%86%E5%86%9B/%E6%88%AA%E5%B1%8F2025-11-03%2016.13.53.png?raw=true" alt="NetEase Auto AI Anchor">
+                        <img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E5%BC%A0%E9%BD%90%E5%B0%86%E5%86%9B/%E6%88%AA%E5%B1%8F2025-11-03%2016.13.53.png" alt="NetEase Auto AI Anchor">
                     </div>
                     <div class="flex justify-between items-end">
                         <div class="space-y-2 text-left">
@@ -355,7 +380,7 @@
                 <!-- 7. 寧波城市形象海報 (新增項目) -->
                 <div class="project-card group cursor-pointer text-left" data-cat="live" onclick="showPage('ningbo')">
                     <div class="aspect-[16/10] image-container mb-8">
-                        <img src="https://github.com/1uck99ir1/works/raw/main/%E5%AE%81%E6%B3%A2%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F/%E5%AE%81%E6%B3%A2%E6%96%87%E5%8C%96%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F2.png" alt="寧波與世界海報">
+                        <img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E5%AE%81%E6%B3%A2%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F/%E5%AE%81%E6%B3%A2%E6%96%87%E5%8C%96%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F2.png" alt="寧波與世界海報" style="object-position: center 42%;">
                     </div>
                     <div class="flex justify-between items-end">
                         <div class="space-y-2 text-left">
@@ -375,12 +400,12 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
                 <!-- 人是機器人的神 -->
                 <div class="space-y-4 cursor-pointer text-left" onclick="showPage('robot-god')">
-                    <div class="aspect-square image-container"><img src="https://github.com/1uck99ir1/works/blob/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/creator.jpg?raw=true" alt="人是機器人的神"></div>
+                    <div class="aspect-square image-container"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/creator.jpg" alt="人是機器人的神"></div>
                     <h5 class="serif text-lg font-light text-black">《人是機器人的神》系列科幻插畫</h5>
                 </div>
                 <!-- 矛盾的海洋 -->
                 <div class="space-y-4 cursor-pointer text-left" onclick="showPage('ocean')">
-                    <div class="aspect-square image-container"><img src="https://github.com/1uck99ir1/works/blob/main/ocean/%E6%88%AA%E5%B1%8F2026-02-19%2013.15.06.png?raw=true" alt="矛盾的海洋"></div>
+                    <div class="aspect-square image-container"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/ocean/%E6%88%AA%E5%B1%8F2026-02-19%2013.15.06.png" alt="矛盾的海洋"></div>
                     <h5 class="serif text-lg font-light text-black">《矛盾的海洋》虛擬展覽與社會觀察</h5>
                 </div>
             </div>
@@ -410,7 +435,7 @@
 
             <section class="mb-32">
                 <div class="video-container shadow-xl">
-                    <video controls preload="auto" playsinline poster="https://raw.githubusercontent.com/1uck99ir1/works/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/%E5%9B%BE%E7%89%871.jpg">
+                    <video controls preload="metadata" playsinline poster="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/%E5%9B%BE%E7%89%871.jpg">
                         <source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/67873348186d6d03749a23b15934a6c0.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -433,16 +458,16 @@
             <section class="space-y-16 mb-32 pt-16 border-t border-gray-100 text-center">
                 <div class="grid grid-cols-1 gap-12">
                     <div class="image-container aspect-[3/2] md:aspect-[21/9]">
-                        <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/%E5%9B%BE%E7%89%871.jpg" class="zoom-clickable" onclick="openLightbox(this.src)">
+                        <img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/%E5%9B%BE%E7%89%871.jpg" class="zoom-clickable" onclick="openLightbox(this.src)">
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-                    <div class="image-container aspect-[3/4]"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/%E5%9B%BE%E7%89%872.jpeg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
-                    <div class="image-container aspect-[3/4] md:mt-24"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/Spread_the_characters_4k_202601151621.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-[3/4]"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/%E5%9B%BE%E7%89%872.jpeg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-[3/4] md:mt-24"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/Spread_the_characters_4k_202601151621.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-                    <div class="image-container aspect-video"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/%E6%97%A0%E5%A4%AA%E9%98%B3%E5%8F%B3%E4%BE%A7-p%E8%BF%87.jpeg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
-                    <div class="image-container aspect-video"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/The_evening_sunlight_2k_202602131608.jpeg?raw=true" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-video"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/%E6%97%A0%E5%A4%AA%E9%98%B3%E5%8F%B3%E4%BE%A7-p%E8%BF%87.jpeg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-video"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/The_evening_sunlight_2k_202602131608.jpeg?raw=true" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
                 </div>
             </section>
 
@@ -450,16 +475,16 @@
                 <h4 class="text-[10px] tracking-[0.4em] text-gray-400 uppercase font-medium">Video Fragments - AIGC 影像片段</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12 text-center">
                     <div class="relative bg-black rounded-sm overflow-hidden aspect-video cursor-zoom-in" onclick="openLightbox('https://github.com/1uck99ir1/works/raw/refs/heads/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/%E5%B0%8F%E7%86%8A%E7%9C%8B%E5%A4%95%E9%98%B3%E7%89%B9%E5%86%992.mp4', 'video')">
-                        <video autoplay muted loop playsinline class="w-full h-full object-cover opacity-80 hover:opacity-100 transition"><source src="https://github.com/1uck99ir1/works/raw/refs/heads/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/%E5%B0%8F%E7%86%8A%E7%9C%8B%E5%A4%95%E9%98%B3%E7%89%B9%E5%86%992.mp4" type="video/mp4"></video>
+                        <video muted loop playsinline preload="none" data-autoplay class="w-full h-full object-cover opacity-80 hover:opacity-100 transition"><source src="https://github.com/1uck99ir1/works/raw/refs/heads/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/%E5%B0%8F%E7%86%8A%E7%9C%8B%E5%A4%95%E9%98%B3%E7%89%B9%E5%86%992.mp4" type="video/mp4"></video>
                     </div>
                     <div class="relative bg-black rounded-sm overflow-hidden aspect-video cursor-zoom-in" onclick="openLightbox('https://github.com/1uck99ir1/works/raw/refs/heads/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/2%E6%9C%8818%E6%97%A5.mp4', 'video')">
-                        <video autoplay muted loop playsinline class="w-full h-full object-cover opacity-80 hover:opacity-100 transition"><source src="https://github.com/1uck99ir1/works/raw/refs/heads/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/2%E6%9C%8818%E6%97%A5.mp4" type="video/mp4"></video>
+                        <video muted loop playsinline preload="none" data-autoplay class="w-full h-full object-cover opacity-80 hover:opacity-100 transition"><source src="https://github.com/1uck99ir1/works/raw/refs/heads/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/2%E6%9C%8818%E6%97%A5.mp4" type="video/mp4"></video>
                     </div>
                     <div class="relative bg-black rounded-sm overflow-hidden aspect-video cursor-zoom-in" onclick="openLightbox('https://github.com/1uck99ir1/works/raw/refs/heads/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/kling_20260124_%E4%BD%9C%E5%93%81_%E8%AF%B7%E4%BD%BF%E7%94%A8%E6%88%91%E6%8F%90%E4%BE%9B%E7%9A%84_%E5%9B%BE%E7%89%87_4556_0.mp4', 'video')">
-                        <video autoplay muted loop playsinline class="w-full h-full object-cover opacity-80 hover:opacity-100 transition"><source src="https://github.com/1uck99ir1/works/raw/refs/heads/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/kling_20260124_%E4%BD%9C%E5%93%81_%E8%AF%B7%E4%BD%BF%E7%94%A8%E6%88%91%E6%8F%90%E4%BE%9B%E7%9A%84_%E5%9B%BE%E7%89%87_4556_0.mp4" type="video/mp4"></video>
+                        <video muted loop playsinline preload="none" data-autoplay class="w-full h-full object-cover opacity-80 hover:opacity-100 transition"><source src="https://github.com/1uck99ir1/works/raw/refs/heads/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/kling_20260124_%E4%BD%9C%E5%93%81_%E8%AF%B7%E4%BD%BF%E7%94%A8%E6%88%91%E6%8F%90%E4%BE%9B%E7%9A%84_%E5%9B%BE%E7%89%87_4556_0.mp4" type="video/mp4"></video>
                     </div>
                     <div class="relative bg-black rounded-sm overflow-hidden aspect-video cursor-zoom-in" onclick="openLightbox('https://github.com/1uck99ir1/works/raw/refs/heads/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/kling_20260129_%E5%9B%BE%E7%94%9F%E8%A7%86%E9%A2%91_%E7%94%B5%E5%BD%B1%E7%BA%A7%E5%86%99%E5%AE%9E%E6%91%84%E5%BD%B1%E9%A3%8E%E6%A0%BC__2934_0.mp4', 'video')">
-                        <video autoplay muted loop playsinline class="w-full h-full object-cover opacity-80 hover:opacity-100 transition"><source src="https://github.com/1uck99ir1/works/raw/refs/heads/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/kling_20260129_%E5%9B%BE%E7%94%9F%E8%A7%86%E9%A2%91_%E7%94%B5%E5%BD%B1%E7%BA%A7%E5%86%99%E5%AE%9E%E6%91%84%E5%BD%B1%E9%A3%8E%E6%A0%BC__2934_0.mp4" type="video/mp4"></video>
+                        <video muted loop playsinline preload="none" data-autoplay class="w-full h-full object-cover opacity-80 hover:opacity-100 transition"><source src="https://github.com/1uck99ir1/works/raw/refs/heads/main/%E8%85%BE%E5%8A%BFai%E5%B0%8F%E7%86%8A/kling_20260129_%E5%9B%BE%E7%94%9F%E8%A7%86%E9%A2%91_%E7%94%B5%E5%BD%B1%E7%BA%A7%E5%86%99%E5%AE%9E%E6%91%84%E5%BD%B1%E9%A3%8E%E6%A0%BC__2934_0.mp4" type="video/mp4"></video>
                     </div>
                 </div>
             </section>
@@ -483,7 +508,7 @@
             </header>
             <section class="mb-32">
                 <div class="video-container shadow-2xl">
-                    <video controls preload="auto" playsinline poster="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/%E5%9B%BE%E7%89%874.jpg">
+                    <video controls preload="metadata" playsinline poster="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/%E5%9B%BE%E7%89%874.jpg">
                         <source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/1772187807186.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -497,23 +522,23 @@
             </section>
             <section class="mb-40 pt-24 border-t border-gray-100">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-                    <div class="image-container aspect-[3/2] shadow-sm"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/%E7%BA%B9%E6%A0%B7.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
-                    <div class="image-container aspect-[3/2] shadow-sm"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/%E7%BA%B9%E6%A0%B7%E6%8B%86%E5%88%862.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-[3/2] shadow-sm"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/%E7%BA%B9%E6%A0%B7.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-[3/2] shadow-sm"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/%E7%BA%B9%E6%A0%B7%E6%8B%86%E5%88%862.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
                 </div>
             </section>
             <section class="mb-40 pt-24 border-t border-gray-100 text-center">
                 <h3 class="text-2xl font-light serif mb-12 text-black">匠心造物 | 宋錦限量禮盒實拍</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div class="image-container aspect-[4/5]"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/%E4%BE%A7%E9%9D%A2.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
-                    <div class="image-container aspect-[4/5]"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/%E7%A4%BC%E7%9B%92%E6%89%93%E5%BC%801.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
-                    <div class="image-container aspect-[4/5]"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/%E9%92%A5%E5%8C%99%E6%89%A3.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-[4/5]"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/%E4%BE%A7%E9%9D%A2.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-[4/5]"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/%E7%A4%BC%E7%9B%92%E6%89%93%E5%BC%801.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-[4/5]"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/%E9%92%A5%E5%8C%99%E6%89%A3.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
                 </div>
             </section>
             <section class="mb-40 pt-24 border-t border-gray-100 text-center">
                 <h3 class="text-2xl font-light serif mb-12 text-black">展台應用 | 品牌空間延展</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="image-container aspect-video shadow-sm"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/%E4%B8%8A%E6%B5%B7%E8%BD%A6%E5%B1%95.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
-                    <div class="image-container aspect-video shadow-sm"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/%E5%B9%BF%E5%B7%9E%E8%BD%A6%E5%B1%95.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-video shadow-sm"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/%E4%B8%8A%E6%B5%B7%E8%BD%A6%E5%B1%95.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-video shadow-sm"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AF%E7%BA%B9%E6%A0%B7/%E5%B9%BF%E5%B7%9E%E8%BD%A6%E5%B1%95.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
                 </div>
             </section>
             <footer class="py-32 flex justify-center border-t border-gray-100"><button onclick="showPage('home')" class="text-xs tracking-widest text-gray-400 font-medium">BACK TO INDEX</button></footer>
@@ -538,7 +563,7 @@
             </header>
             <section class="mb-32">
                 <div class="video-container shadow-2xl">
-                    <video controls preload="auto" playsinline poster="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/d8b3840e0b5e1a4ff2eaeeceda5d935a.JPG">
+                    <video controls preload="metadata" playsinline poster="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/d8b3840e0b5e1a4ff2eaeeceda5d935a.JPG">
                         <source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/1772187470587.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -552,16 +577,16 @@
                 <h4 class="text-[10px] tracking-[0.4em] text-gray-400 uppercase font-medium">AI Fragments - 創意片段</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
                     <div class="relative aspect-video bg-black rounded-sm overflow-hidden cursor-zoom-in" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/9017.MP4', 'video')">
-                        <video autoplay muted loop playsinline class="w-full h-full object-cover opacity-80 hover:opacity-100 transition"><source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/9017.MP4" type="video/mp4"></video>
+                        <video muted loop playsinline preload="none" data-autoplay class="w-full h-full object-cover opacity-80 hover:opacity-100 transition"><source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/9017.MP4" type="video/mp4"></video>
                     </div>
                     <div class="relative aspect-video bg-black rounded-sm overflow-hidden cursor-zoom-in" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/%E7%8B%AC%E5%BA%93%E5%85%AC%E8%B7%AF%E9%95%9C%E5%A4%B42-1.mp4', 'video')">
-                        <video autoplay muted loop playsinline class="w-full h-full object-cover opacity-80 hover:opacity-100 transition"><source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/%E7%8B%AC%E5%BA%93%E5%85%AC%E8%B7%AF%E9%95%9C%E5%A4%B42-1.mp4" type="video/mp4"></video>
+                        <video muted loop playsinline preload="none" data-autoplay class="w-full h-full object-cover opacity-80 hover:opacity-100 transition"><source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/%E7%8B%AC%E5%BA%93%E5%85%AC%E8%B7%AF%E9%95%9C%E5%A4%B42-1.mp4" type="video/mp4"></video>
                     </div>
                     <div class="relative aspect-video bg-black rounded-sm overflow-hidden cursor-zoom-in" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/%E8%8D%A7%E5%85%89%E6%B5%B7%E9%95%9C%E5%A4%B42-1.mp4', 'video')">
-                        <video autoplay muted loop playsinline class="w-full h-full object-cover opacity-80 hover:opacity-100 transition"><source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/%E8%8D%A7%E5%85%89%E6%B5%B7%E9%95%9C%E5%A4%B42-1.mp4" type="video/mp4"></video>
+                        <video muted loop playsinline preload="none" data-autoplay class="w-full h-full object-cover opacity-80 hover:opacity-100 transition"><source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/%E8%8D%A7%E5%85%89%E6%B5%B7%E9%95%9C%E5%A4%B42-1.mp4" type="video/mp4"></video>
                     </div>
                     <div class="relative aspect-video bg-black rounded-sm overflow-hidden cursor-zoom-in" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/%E8%8D%A7%E5%85%89%E6%B5%B7%E9%95%9C%E5%A4%B43-2.mp4', 'video')">
-                        <video autoplay muted loop playsinline class="w-full h-full object-cover opacity-80 hover:opacity-100 transition"><source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/%E8%8D%A7%E5%85%89%E6%B5%B7%E9%95%9C%E5%A4%B43-2.mp4" type="video/mp4"></video>
+                        <video muted loop playsinline preload="none" data-autoplay class="w-full h-full object-cover opacity-80 hover:opacity-100 transition"><source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%9E%97%E8%82%AFaigc/%E8%8D%A7%E5%85%89%E6%B5%B7%E9%95%9C%E5%A4%B43-2.mp4" type="video/mp4"></video>
                     </div>
                 </div>
             </section>
@@ -605,13 +630,13 @@
                 <h3 class="text-2xl font-light serif mb-12 text-black text-center">AIGC 創意互動片段</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div class="relative bg-black rounded-sm overflow-hidden aspect-[9/16] cursor-zoom-in" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/1.mp4', 'video')">
-                        <video autoplay muted loop playsinline class="w-full h-full object-cover"><source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/1.mp4" type="video/mp4"></video>
+                        <video muted loop playsinline preload="none" data-autoplay class="w-full h-full object-cover"><source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/1.mp4" type="video/mp4"></video>
                     </div>
                     <div class="relative bg-black rounded-sm overflow-hidden aspect-[9/16] cursor-zoom-in" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/2.mp4', 'video')">
-                        <video autoplay muted loop playsinline class="w-full h-full object-cover"><source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/2.mp4" type="video/mp4"></video>
+                        <video muted loop playsinline preload="none" data-autoplay class="w-full h-full object-cover"><source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/2.mp4" type="video/mp4"></video>
                     </div>
                     <div class="relative bg-black rounded-sm overflow-hidden aspect-[9/16] cursor-zoom-in" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/3.mp4', 'video')">
-                        <video autoplay muted loop playsinline class="w-full h-full object-cover"><source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/3.mp4" type="video/mp4"></video>
+                        <video muted loop playsinline preload="none" data-autoplay class="w-full h-full object-cover"><source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/3.mp4" type="video/mp4"></video>
                     </div>
                 </div>
                 <div class="mt-16 text-center">
@@ -629,10 +654,10 @@
                     </div>
                     <div class="md:col-span-7 flex flex-col md:flex-row gap-8">
                         <div class="h5-mockup" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E4%BA%91%E9%9F%B3%E4%B9%90h5%E9%95%BF%E5%9B%BE0926.jpg')">
-                            <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E4%BA%91%E9%9F%B3%E4%B9%90h5%E9%95%BF%E5%9B%BE0926.jpg" alt="專題頁">
+                            <img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E4%BA%91%E9%9F%B3%E4%B9%90h5%E9%95%BF%E5%9B%BE0926.jpg" alt="專題頁">
                         </div>
                         <div class="h5-mockup md:mt-24" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E7%95%99%E5%92%A8.jpg')">
-                            <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E7%95%99%E5%92%A8.jpg" alt="留資頁">
+                            <img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E7%95%99%E5%92%A8.jpg" alt="留資頁">
                         </div>
                     </div>
                 </div>
@@ -644,14 +669,14 @@
                     <p class="text-gray-500 text-sm leading-relaxed text-center">為互動 H5 定製開發的多維度視覺場景，結合 AI 渲染技術構建沈浸式品牌情緒空間。</p>
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <div class="image-container aspect-[3/4]"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E5%B1%B1%E8%B0%B7%E6%98%9F%E7%A9%BA.png" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
-                    <div class="image-container aspect-[3/4]"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E6%B2%99%E6%BC%A0%E6%97%A5%E8%90%BD.png" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
-                    <div class="image-container aspect-[3/4]"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E6%B8%85%E6%99%A8%E5%AF%86%E6%9E%97.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
-                    <div class="image-container aspect-[3/4]"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E7%94%B5%E5%AD%90%E8%BF%B7%E5%B9%BB.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
-                    <div class="image-container aspect-[3/4]"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E7%94%B5%E5%AD%90%E8%BF%B7%E5%B9%BB2.png" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
-                    <div class="image-container aspect-[3/4]"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E8%87%AA%E7%94%B1%E5%BC%AF%E9%81%932.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
-                    <div class="image-container aspect-[3/4]"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E9%83%BD%E5%B8%82%E5%BE%8B%E5%8A%A8.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
-                    <div class="image-container aspect-[3/4]"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E9%83%BD%E5%B8%82%E5%BE%8B%E5%8A%A82.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-[3/4]"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E5%B1%B1%E8%B0%B7%E6%98%9F%E7%A9%BA.png" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-[3/4]"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E6%B2%99%E6%BC%A0%E6%97%A5%E8%90%BD.png" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-[3/4]"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E6%B8%85%E6%99%A8%E5%AF%86%E6%9E%97.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-[3/4]"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E7%94%B5%E5%AD%90%E8%BF%B7%E5%B9%BB.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-[3/4]"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E7%94%B5%E5%AD%90%E8%BF%B7%E5%B9%BB2.png" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-[3/4]"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E8%87%AA%E7%94%B1%E5%BC%AF%E9%81%932.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-[3/4]"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E9%83%BD%E5%B8%82%E5%BE%8B%E5%8A%A8.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
+                    <div class="image-container aspect-[3/4]"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E9%95%BF%E5%AE%89%E9%A9%AC%E8%87%AA%E8%BE%BEez60/%E9%83%BD%E5%B8%82%E5%BE%8B%E5%8A%A82.jpg" class="zoom-clickable" onclick="openLightbox(this.src)"></div>
                 </div>
             </section>
             
@@ -681,7 +706,7 @@
             <section class="mb-32 text-center">
                 <!-- 恢復標準 video 標籤 -->
                 <div class="video-container shadow-2xl">
-                    <video controls preload="auto" playsinline poster="https://github.com/1uck99ir1/works/blob/main/%E5%BC%A0%E9%BD%90%E5%B0%86%E5%86%9B/%E6%88%AA%E5%B1%8F2025-11-03%2016.13.53.png?raw=true">
+                    <video controls preload="metadata" playsinline poster="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E5%BC%A0%E9%BD%90%E5%B0%86%E5%86%9B/%E6%88%AA%E5%B1%8F2025-11-03%2016.13.53.png?raw=true">
                         <source src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E5%BC%A0%E9%BD%90%E5%B0%86%E5%86%9B/1772187235689.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -732,7 +757,7 @@
 
             <section class="mb-32">
                 <div class="image-container aspect-[16/9] shadow-sm">
-                    <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/%E6%88%AA%E5%B1%8F2026-02-06%2010.15.27.png" class="zoom-clickable" onclick="openLightbox(this.src)">
+                    <img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/%E6%88%AA%E5%B1%8F2026-02-06%2010.15.27.png" class="zoom-clickable" onclick="openLightbox(this.src)">
                 </div>
             </section>
 
@@ -753,13 +778,13 @@
                 <h4 class="text-[10px] tracking-[0.4em] text-gray-400 uppercase font-medium">Featured Content - 爆款筆記</h4>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
                     <!-- 筆記圖片網格 -->
-                    <div class="image-container aspect-[3/4]" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/1.1.jpg')"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/1.1.jpg"></div>
-                    <div class="image-container aspect-[3/4]" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/2.1.jpg')"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/2.1.jpg"></div>
-                    <div class="image-container aspect-[3/4]" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/3.1.jpg')"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/3.1.jpg"></div>
-                    <div class="image-container aspect-[3/4]" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/4.1.jpg')"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/4.1.jpg"></div>
-                    <div class="image-container aspect-[3/4]" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/5.1.jpg')"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/5.1.jpg"></div>
-                    <div class="image-container aspect-[3/4]" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/6.1.jpg')"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/6.1.jpg"></div>
-                    <div class="image-container aspect-[3/4]" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/7.1.jpg')"><img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/7.1.jpg"></div>
+                    <div class="image-container aspect-[3/4]" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/1.1.jpg')"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/1.1.jpg"></div>
+                    <div class="image-container aspect-[3/4]" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/2.1.jpg')"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/2.1.jpg"></div>
+                    <div class="image-container aspect-[3/4]" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/3.1.jpg')"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/3.1.jpg"></div>
+                    <div class="image-container aspect-[3/4]" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/4.1.jpg')"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/4.1.jpg"></div>
+                    <div class="image-container aspect-[3/4]" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/5.1.jpg')"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/5.1.jpg"></div>
+                    <div class="image-container aspect-[3/4]" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/6.1.jpg')"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/6.1.jpg"></div>
+                    <div class="image-container aspect-[3/4]" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/7.1.jpg')"><img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E6%83%B3%E4%B8%8B%E7%8F%AD%E7%9A%84%E9%A9%B4/7.1.jpg"></div>
                 </div>
                 <div class="mt-12">
                     <a href="https://www.xiaohongshu.com/discovery/item/686ba9b10000000024008a97?source=webshare&xhsshare=pc_web&xsec_token=ABCR2w6Dr3ByLdHWGwaZF6rZLafovdN_oGYsGCnj2AAe0=&xsec_source=pc_share" target="_blank" 
@@ -776,8 +801,8 @@
     <!-- 8. About 頁面 -->
     <div id="about-page" class="hidden-page fade-in pt-48 pb-24 text-left">
         <section class="max-w-7xl mx-auto px-8">
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-40 text-left">
-                <div class="md:col-span-7 space-y-12">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-20 text-left">
+                <div class="md:col-span-6 space-y-12">
                     <h1 class="text-4xl md:text-5xl font-light serif leading-tight text-black font-medium text-left">你好，我是 楊奕文。</h1>
                     <p class="text-lg text-gray-500 font-light leading-relaxed text-justify">畢業於倫敦藝術大學 (UAL) 插畫與視覺媒體專業，國畫專業科班出身。我通過 AIGC 流程、品牌商業邏輯與高品質視覺的結合，探尋視覺如何驅動內容的有效增長。</p>
                     <div class="space-y-4 text-left">
@@ -789,14 +814,14 @@
                     </div>
                 </div>
                 <!-- 頭像 -->
-                <div class="md:col-span-4 md:col-start-9">
-                     <div class="aspect-[3/4] image-container rounded-sm overflow-hidden shadow-lg">
-                         <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E5%A4%B4%E5%83%8F/%E8%B5%84%E6%BA%90%201.png" alt="Yiwen Yang" class="w-full h-full object-cover">
+                <div class="md:col-span-5 md:col-start-8">
+                     <div class="aspect-square image-container rounded-sm overflow-hidden shadow-lg">
+                         <img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E5%A4%B4%E5%83%8F/%E8%B5%84%E6%BA%90%201.png" alt="Yiwen Yang" class="w-full h-full object-cover">
                      </div>
                 </div>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 border-t border-gray-100 pt-24 text-left">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 border-t border-gray-100 pt-16 text-left">
                 <div class="md:col-span-4"><h3 class="text-2xl font-light serif text-black">詳細履歷</h3><p class="text-[10px] tracking-[0.2em] text-gray-300 uppercase mt-2 font-medium">Experience</p></div>
                 <div class="md:col-span-8 space-y-20 font-light text-left">
                     <div class="space-y-12 text-left">
@@ -885,7 +910,7 @@
 
             <section class="mb-32">
                 <div class="image-container shadow-2xl cursor-zoom-in" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/creator.jpg')">
-                     <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/creator.jpg" alt="Creator Main Visual">
+                     <img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/creator.jpg" alt="Creator Main Visual">
                 </div>
             </section>
 
@@ -906,25 +931,25 @@
                 <div class="columns-1 md:columns-2 lg:columns-2 gap-6 space-y-6 mt-12 masonry-col">
                     <div class="masonry-item">
                         <div class="image-container" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/birth.jpg')">
-                            <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/birth.jpg" alt="Birth">
+                            <img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/birth.jpg" alt="Birth">
                         </div>
                         <p class="text-xs text-gray-400 mt-2 text-left">Birth / 誕生</p>
                     </div>
                     <div class="masonry-item">
                         <div class="image-container" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/death.jpg')">
-                            <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/death.jpg" alt="Death">
+                            <img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/death.jpg" alt="Death">
                         </div>
                         <p class="text-xs text-gray-400 mt-2 text-left">Death / 死亡</p>
                     </div>
                     <div class="masonry-item">
                         <div class="image-container" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/fire.jpg')">
-                            <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/fire.jpg" alt="Fire">
+                            <img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/fire.jpg" alt="Fire">
                         </div>
                         <p class="text-xs text-gray-400 mt-2 text-left">Fire / 文明</p>
                     </div>
                     <div class="masonry-item">
                         <div class="image-container" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/makeup.jpg')">
-                            <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/makeup.jpg" alt="Makeup">
+                            <img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E4%BA%BA%E6%98%AF%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E7%A5%9E/makeup.jpg" alt="Makeup">
                         </div>
                         <p class="text-xs text-gray-400 mt-2 text-left">Makeup / 審美</p>
                     </div>
@@ -955,7 +980,7 @@
             <section class="mb-32">
                 <div class="video-container shadow-2xl">
                      <div class="relative w-full h-full">
-                        <video autoplay muted loop playsinline class="w-full h-full object-cover" controls>
+                        <video muted loop playsinline preload="none" data-autoplay class="w-full h-full object-cover" controls>
                             <source src="https://github.com/1uck99ir1/works/raw/refs/heads/main/ocean/%E6%88%91%E7%9A%84%E9%A1%B9%E7%9B%AE%20(3)%202.mp4" type="video/mp4">
                         </video>
                     </div>
@@ -987,27 +1012,27 @@
                 <div class="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6 mt-12 masonry-col">
                     <div class="masonry-item">
                         <div class="image-container" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/ocean/1.jpg')">
-                            <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/ocean/1.jpg" alt="Ocean 1">
+                            <img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/ocean/1.jpg" alt="Ocean 1">
                         </div>
                     </div>
                     <div class="masonry-item">
                         <div class="image-container" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/ocean/02.jpg')">
-                            <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/ocean/02.jpg" alt="Ocean 2">
+                            <img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/ocean/02.jpg" alt="Ocean 2">
                         </div>
                     </div>
                     <div class="masonry-item">
                         <div class="image-container" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/ocean/03.jpg')">
-                            <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/ocean/03.jpg" alt="Ocean 3">
+                            <img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/ocean/03.jpg" alt="Ocean 3">
                         </div>
                     </div>
                     <div class="masonry-item">
                         <div class="image-container" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/ocean/4.jpg')">
-                            <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/ocean/4.jpg" alt="Ocean 4">
+                            <img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/ocean/4.jpg" alt="Ocean 4">
                         </div>
                     </div>
                     <div class="masonry-item">
                         <div class="image-container" onclick="openLightbox('https://raw.githubusercontent.com/1uck99ir1/works/main/ocean/5.jpg')">
-                            <img src="https://raw.githubusercontent.com/1uck99ir1/works/main/ocean/5.jpg" alt="Ocean 5">
+                            <img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/ocean/5.jpg" alt="Ocean 5">
                         </div>
                     </div>
                 </div>
@@ -1052,16 +1077,16 @@
                 <h4 class="text-[10px] tracking-[0.4em] text-gray-400 uppercase font-medium">Poster Series - 系列海報</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mt-12">
                     <div class="image-container shadow-sm" onclick="openLightbox('https://github.com/1uck99ir1/works/raw/main/%E5%AE%81%E6%B3%A2%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F/%E5%AE%81%E6%B3%A2%E6%96%87%E5%8C%96%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F1.png')">
-                        <img src="https://github.com/1uck99ir1/works/raw/main/%E5%AE%81%E6%B3%A2%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F/%E5%AE%81%E6%B3%A2%E6%96%87%E5%8C%96%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F1.png" alt="寧波海報 1">
+                        <img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E5%AE%81%E6%B3%A2%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F/%E5%AE%81%E6%B3%A2%E6%96%87%E5%8C%96%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F1.png" alt="寧波海報 1">
                     </div>
                     <div class="image-container shadow-sm" onclick="openLightbox('https://github.com/1uck99ir1/works/raw/main/%E5%AE%81%E6%B3%A2%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F/%E5%AE%81%E6%B3%A2%E6%96%87%E5%8C%96%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F2.png')">
-                        <img src="https://github.com/1uck99ir1/works/raw/main/%E5%AE%81%E6%B3%A2%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F/%E5%AE%81%E6%B3%A2%E6%96%87%E5%8C%96%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F2.png" alt="寧波海報 2">
+                        <img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E5%AE%81%E6%B3%A2%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F/%E5%AE%81%E6%B3%A2%E6%96%87%E5%8C%96%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F2.png" alt="寧波海報 2">
                     </div>
                     <div class="image-container shadow-sm" onclick="openLightbox('https://github.com/1uck99ir1/works/raw/main/%E5%AE%81%E6%B3%A2%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F/%E5%AE%81%E6%B3%A2%E6%96%87%E5%8C%96%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F4.jpg')">
-                        <img src="https://github.com/1uck99ir1/works/raw/main/%E5%AE%81%E6%B3%A2%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F/%E5%AE%81%E6%B3%A2%E6%96%87%E5%8C%96%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F4.jpg" alt="寧波海報 4">
+                        <img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E5%AE%81%E6%B3%A2%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F/%E5%AE%81%E6%B3%A2%E6%96%87%E5%8C%96%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F4.jpg" alt="寧波海報 4">
                     </div>
                     <div class="image-container shadow-sm" onclick="openLightbox('https://github.com/1uck99ir1/works/raw/main/%E5%AE%81%E6%B3%A2%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F/%E5%AE%81%E6%B3%A2%E6%96%87%E5%8C%96%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F5.jpg')">
-                        <img src="https://github.com/1uck99ir1/works/raw/main/%E5%AE%81%E6%B3%A2%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F/%E5%AE%81%E6%B3%A2%E6%96%87%E5%8C%96%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F5.jpg" alt="寧波海報 5">
+                        <img loading="lazy" decoding="async" src="https://wsrv.nl/?w=1600&q=85&output=webp&url=raw.githubusercontent.com/1uck99ir1/works/main/%E5%AE%81%E6%B3%A2%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F/%E5%AE%81%E6%B3%A2%E6%96%87%E5%8C%96%E9%9D%9E%E9%81%97%E6%B5%B7%E6%8A%A5%E5%88%9B%E6%84%8F5.jpg" alt="寧波海報 5">
                     </div>
                 </div>
             </section>
@@ -1070,12 +1095,34 @@
     </div>
 
     <script>
+        !function(){console.log("%c\u60A8\u7684\u64CD\u4F5C\u5DF2\u88AB\u8BB0\u5F55","color:#ff4757;font-size:12px;font-weight:bold;text-shadow:1px 1px 2px rgba(0,0,0,0.2);padding:10px");let e=!1;setInterval((()=>{let t=window.outerWidth-window.innerWidth>160,n=window.outerHeight-window.innerHeight>160;t||n?!e&&1===window.devicePixelRatio&&(e=!0,alert("\u60A8\u7684\u64CD\u4F5C\u5DF2\u88AB\u8BB0\u5F55")):e=!1}),500),document.addEventListener("keydown",(e=>{("F12"===e.key||(e.ctrlKey||e.metaKey)&&e.shiftKey&&["I","i","C","c","J","j"].includes(e.key)||(e.ctrlKey||e.metaKey)&&["U","u"].includes(e.key))&&(e.preventDefault(),alert("\u60A8\u7684\u64CD\u4F5C\u5DF2\u88AB\u8BB0\u5F55"))})),document.addEventListener("wheel",(e=>{(e.ctrlKey||e.metaKey)&&e.preventDefault()}),{passive:!1}),document.addEventListener("contextmenu",(e=>{"IMG"!==e.target.tagName&&"VIDEO"!==e.target.tagName||e.preventDefault()})),document.addEventListener("DOMContentLoaded",(()=>{document.querySelectorAll("video").forEach((e=>{e.setAttribute("controlsList","nodownload"),e.setAttribute("disablePictureInPicture","true")}));if("IntersectionObserver"in window){const e=new IntersectionObserver((e=>{e.forEach((e=>{const t=e.target;e.isIntersecting?t.hasAttribute("data-autoplay")&&t.play().catch((e=>console.log("Auto-play prevented:",e))):t.hasAttribute("data-autoplay")&&!t.paused&&t.pause()}))}),{threshold:.1});document.querySelectorAll("video[data-autoplay]").forEach((t=>{e.observe(t)}))}}))}();
+
         function showPage(pageId) {
             const pages = ['home-page', 'denza-page', 'lincoln-page', 'lincoln-aigc-page', 'netease-page', 'netease-auto-page', 'about-page', 'donkey-page', 'ocean-page', 'robot-god-page', 'ningbo-page'];
             window.scrollTo({ top: 0, behavior: 'instant' });
             pages.forEach(p => { const el = document.getElementById(p); if(el) el.classList.add('hidden-page'); });
             const target = document.getElementById(pageId + '-page'); if(target) target.classList.remove('hidden-page');
+            
+            // 更新 URL，支持參數跳轉分享
+            if (pageId !== 'home') {
+                history.replaceState(null, null, '#' + pageId);
+            } else {
+                history.replaceState(null, null, window.location.pathname + window.location.search);
+            }
         }
+        
+        // 頁面加載時檢查 URL 參數或 Hash，實現直接跳轉
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const pageParam = urlParams.get('page');
+            const hashParam = window.location.hash.replace('#', '');
+            
+            const targetPage = pageParam || hashParam;
+            const validPages = ['home', 'denza', 'lincoln', 'lincoln-aigc', 'netease', 'netease-auto', 'about', 'donkey', 'ocean', 'robot-god', 'ningbo'];
+            if (targetPage && validPages.includes(targetPage)) {
+                showPage(targetPage);
+            }
+        });
         
         function openLightbox(src, type = 'image') {
             const lightbox = document.getElementById('lightbox');
@@ -1098,11 +1145,20 @@
             } else {
                 lightboxImg.classList.remove('hidden');
                 lightboxImg.style.display = 'block'; // 強制顯示
-                lightboxImg.src = src;
+                
+                let optimizedSrc = src;
+                if (src.includes('wsrv.nl')) {
+                    // 放大時提高清晰度和質量
+                    optimizedSrc = src.replace(/w=\d+/, 'w=2560').replace(/q=\d+/, 'q=95');
+                } else if (src.includes('githubusercontent.com') || src.includes('github.com')) {
+                    let cleanUrl = src.replace('https://', '').replace('github.com/', 'raw.githubusercontent.com/').replace('/blob/', '/').replace('/raw/', '/');
+                    optimizedSrc = `https://wsrv.nl/?url=${encodeURIComponent(cleanUrl)}&w=2560&q=95&output=webp`;
+                }
+                lightboxImg.src = optimizedSrc;
                 
                 // 檢測長圖邏輯
                 const img = new Image();
-                img.src = src;
+                img.src = optimizedSrc;
                 img.onload = function() {
                      if (this.height > window.innerHeight * 1.5) {
                          lightbox.classList.add('scroll-mode');
